@@ -1,6 +1,10 @@
 import { Module } from '@nestjs/common';
 
-@Module({})
+import ControllerModule from '@controller/controller.module';
+
+@Module({
+  imports: [ControllerModule],
+})
 class AppModule {}
 
 export default AppModule;
