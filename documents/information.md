@@ -7,7 +7,6 @@
 ## 📝 목차
 
 - [버전 명세](#-%EB%B2%84%EC%A0%84-%EB%AA%85%EC%84%B8)
-- [프로젝트 구조](#-%ED%94%84%EB%A1%9C%EC%A0%9D%ED%8A%B8-%EA%B5%AC%EC%A1%B0)
 - [깃 컨벤션](#-%EA%B9%83-%EC%BB%A8%EB%B2%A4%EC%85%98)
 - [코드 컨벤션](#-%EC%BD%94%EB%93%9C-%EC%BB%A8%EB%B2%A4%EC%85%98)
 
@@ -24,7 +23,6 @@
 ```PLAIN
 Node.js     : 18.13.0 (LTS)
 yarn        : 1.22.19
-npm         : 8.19.3
 
 nest        : 9.1.8
 typescript  : 4.7.4
