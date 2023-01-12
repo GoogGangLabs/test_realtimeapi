@@ -1,8 +1,15 @@
 import { NestFactory } from '@nestjs/core';
-import { AppModule } from './app.module';
+import AppModule from '@src/app.module';
 
-async function bootstrap() {
+const bootstrap = async () => {
   const app = await NestFactory.create(AppModule);
-  await app.listen(3000);
-}
+  const port = process.env.PORT || 4000;
+
+  await app.listen(port, () => {
+    console.log(`======= ENV: ${process.env.NODE_ENV} =======`);
+    console.log(`======= Service: Streaming Response =========`);
+    console.log(`🚀 App listening on the port ${port}`);
+  });
+};
+
 bootstrap();
