@@ -18,6 +18,7 @@
     "noFallthroughCasesInSwitch": false,
     "baseUrl": "./",
     "paths": {
+      "@controller/*": ["./src/controller/*"],
       "@src/*": ["./src/*"]
     }
   }
