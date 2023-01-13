@@ -11,17 +11,30 @@
     <link href="/css/style.css" rel="stylesheet" type="text/css" />
 
     <script src="/javascript/index.js"></script>
+    <script src="/javascript/socket.js"></script>
+
+    <script
+      src="https://cdn.socket.io/4.5.4/socket.io.min.js"
+      integrity="sha384-/KNQL8Nu5gCHLqwqfQjA689Hhoqgi2S84SNUxC3roTe4EhJ9AfLkp8QiQcU8AMzI"
+      crossorigin="anonymous"
+    ></script>
   </head>
   <body>
     <div class="container">
-      <video autoplay="true" id="mediaPipeVideo"></video>
-      <video autoplay="true" id="originalVideo"></video>
-    </div>
-    <footer>
-      <div class="footer-container">
-        <button class="button-default-style" id="button-start" onclick="start()">Start</button>
-        <button class="button-default-style" id="button-end" onclick="end()">End</button>
+      <video id="input-video"></video>
+      <div class="side-bar">
+        <img class="symbol-image" src="./assets/symbol.png" />
+        <div class="origin-container">
+          <canvas id="origin-canvas"></canvas>
+          <div class="button-container">
+            <button class="button-default button-start" onclick="loadVideo()">Start</button>
+            <button class="button-default button-end" onclick="end()">End</button>
+          </div>
+        </div>
       </div>
-    </footer>
+      <div class="changed-container">
+        <canvas id="changed-canvas" width="1280px" height="720px"></canvas>
+      </div>
+    </div>
   </body>
 </html>
