@@ -19,6 +19,8 @@
     "baseUrl": "./",
     "paths": {
       "@controller/*": ["./src/controller/*"],
+      "@gateway/*": ["./src/gateway/*"],
+      "domain/*": ["./src/domain/*"],
       "@src/*": ["./src/*"]
     }
   }
