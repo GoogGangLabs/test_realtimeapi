@@ -8,9 +8,27 @@
 
 ## 📝 목차
 
+- [2023-01-15 (일)](#2023-01-15-일)
 - [2023-01-14 (토)](#2023-01-14-토)
 - [2023-01-13 (금)](#2023-01-13-금)
 - [2023-01-12 (목)](#2023-01-12-목)
+
+<br>
+
+## 2023-01-15 (일))
+
+> Issue List
+
+- [ ] [#8 영상 Stream 딥러닝 적용 및 좌표 Publishing](https://github.com/jcggl/test_realtimeapi/issues/8)
+
+<br>
+
+> Todo List
+
+- OpenCV로 딥러닝 처리 테스트
+- Frame 별 스트림 받아와서 이미지 딥러닝 처리
+- Holistic에 필요한 좌표 작성
+- 딥러닝 결과 Redis 퍼블리싱
 
 <br>
 
@@ -18,7 +36,8 @@
 
 > Issue List
 
-- [ ] [#6 Client - Server 영상 Stream 송/수신 구현](https://github.com/jcggl/test_realtimeapi/issues/6)
+- [x] [#6 Client - Server 영상 Stream 송/수신 구현](https://github.com/jcggl/test_realtimeapi/issues/6)
+- [x] [#7 Streaming Server 송/수신 분리 및 Pipeline 구축](https://github.com/jcggl/test_realtimeapi/issues/7)
 
 <br>
 
@@ -26,6 +45,8 @@
 
 - Client - Server 영상 스트림 송/수신 테스트
 - Canvas 태그를 이용한 Client 이미지 표현 로직 작성
+- Client -> Serever1 -> Deep Learning -> Server2 -> Client Pipeline 구축
+- Redis Pub/Sub 어플리케이션 적용
 
 <br>
 
@@ -33,7 +54,7 @@
 
 > Issue List
 
-- [ ] [#5 Client 실시간 Streaming Handler 구현](https://github.com/jcggl/test_realtimeapi/issues/5)
+- [x] [#5 Client 실시간 Streaming Handler 구현](https://github.com/jcggl/test_realtimeapi/issues/5)
 
 <br>
 
@@ -49,10 +70,10 @@
 
 > Issue List
 
-- [ ] [#1 프로젝트 문서 정리 Task](https://github.com/jcggl/test_realtimeapi/issues/1)
-- [ ] [#2 프로젝트 요구사항 분석](https://github.com/jcggl/test_realtimeapi/issues/2)
-- [ ] [#3 프로젝트 아키텍쳐 설계](https://github.com/jcggl/test_realtimeapi/issues/3)
-- [ ] [#4 프로젝트 보일러플레이트 코드 작성](https://github.com/jcggl/test_realtimeapi/issues/4)
+- [x] [#1 프로젝트 문서 정리 Task](https://github.com/jcggl/test_realtimeapi/issues/1)
+- [x] [#2 프로젝트 요구사항 분석](https://github.com/jcggl/test_realtimeapi/issues/2)
+- [x] [#3 프로젝트 아키텍쳐 설계](https://github.com/jcggl/test_realtimeapi/issues/3)
+- [x] [#4 프로젝트 보일러플레이트 코드 작성](https://github.com/jcggl/test_realtimeapi/issues/4)
 
 <br>
 
