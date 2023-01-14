@@ -10,8 +10,8 @@ class RedisController {
   constructor(private readonly streamGateway: StreamGateway) {}
 
   @EventPattern('STREAM_POSTPROCESS')
-  subscribe([sessionId]: StreamObject) {
-    this.streamGateway.sendStream(sessionId);
+  subscribe(streamObject: StreamObject) {
+    this.streamGateway.sendStream(streamObject);
   }
 }
 
