@@ -7,7 +7,7 @@ import StreamGateway from '@gateway/stream.gateway';
   imports: [
     ClientsModule.register([
       {
-        name: 'STREAM_PREPROCESS',
+        name: 'STREAM_SERVICE',
         transport: Transport.REDIS,
         options: {
           host: 'localhost',
