@@ -1,15 +1,21 @@
 import { NestFactory } from '@nestjs/core';
+import { MicroserviceOptions, Transport } from '@nestjs/microservices';
+
 import AppModule from '@src/app.module';
 
 const bootstrap = async () => {
-  const app = await NestFactory.create(AppModule);
-  const port = process.env.PORT || 4000;
-
-  await app.listen(port, () => {
-    console.log(`======= ENV: ${process.env.NODE_ENV} =======`);
-    console.log(`======= Service: Streaming Response =========`);
-    console.log(`🚀 App listening on the port ${port}`);
+  const app = await NestFactory.createMicroservice<MicroserviceOptions>(AppModule, {
+    transport: Transport.REDIS,
+    options: {
+      host: 'localhost',
+      port: 6379,
+    },
   });
+
+  await app.listen();
+
+  console.log(`======= ENV: ${process.env.NODE_ENV}`);
+  console.log(`======= Service: Streaming Postprocess`);
 };
 
 bootstrap();
