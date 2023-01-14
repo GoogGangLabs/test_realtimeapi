@@ -8,11 +8,44 @@
 
 ## 📝 목차
 
-- [2023-01-12 (화)](#2023-01-12-화)
+- [2023-01-14 (토)](#2023-01-14-토)
+- [2023-01-13 (금)](#2023-01-13-금)
+- [2023-01-12 (목)](#2023-01-12-목)
 
 <br>
 
-## 2023-01-12 (화)
+## 2023-01-14 (토)
+
+> Issue List
+
+- [ ] [#6 Client - Server 영상 Stream 송/수신 구현](https://github.com/jcggl/test_realtimeapi/issues/6)
+
+<br>
+
+> Todo List
+
+- Client - Server 영상 스트림 송/수신 테스트
+- Canvas 태그를 이용한 Client 이미지 표현 로직 작성
+
+<br>
+
+## 2023-01-13 (금)
+
+> Issue List
+
+- [ ] [#5 Client 실시간 Streaming Handler 구현](https://github.com/jcggl/test_realtimeapi/issues/5)
+
+<br>
+
+> Todo List
+
+- MediaStream Frame 별 이미지 추출
+- Socket.io를 통한 Client - Server 연결
+- 데모 페이지 레이아웃 구성
+
+<br>
+
+## 2023-01-12 (목)
 
 > Issue List
 
