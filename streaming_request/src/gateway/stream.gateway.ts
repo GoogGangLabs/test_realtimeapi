@@ -35,7 +35,7 @@ class StreamGateway implements OnGatewayConnection, OnGatewayDisconnect {
   @SubscribeMessage('test')
   test(@ConnectedSocket() client: ClientSocket, @MessageBody('data') data: any) {
     console.log(data);
-    client.emit('test1', data);
+    client.emit('test1', {});
     //
   }
 }

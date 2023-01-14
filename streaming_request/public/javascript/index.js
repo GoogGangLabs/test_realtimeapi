@@ -1,12 +1,44 @@
-let stream = null;
+class BufferQueue {
+  _list = [];
+
+  push(buffer) {
+    this._list.push(buffer);
+  }
+
+  pop() {
+    return this._list.shift();
+  }
+
+  // todo: delete: test code
+  size() {
+    console.log(this._list.length);
+  }
+}
+
 let flag = false;
+const bufferQueue = new BufferQueue();
+
+const loopVideoFrame = () => {
+  const inputVideo = document.getElementById('input-video');
+  const capture = new ImageCapture(inputVideo.srcObject.getVideoTracks()[0]);
+
+  const loopInterval = setInterval(async () => {
+    if (!flag) clearInterval(loopInterval);
+
+    await capture
+      .takePhoto()
+      .then((blob) => {
+        bufferQueue.push(blob);
+        socket.request.emit('test', { data: blob });
+      })
+      .catch((err) => console.log(err));
+  }, 50);
+};
 
 const loadVideo = async () => {
-  const originCanvas = document.getElementById('origin-canvas');
-  const changedCanvas = document.getElementById('changed-canvas');
-  const originContext = originCanvas.getContext('2d');
-  const changedContext = changedCanvas.getContext('2d');
-  const inputVideo = document.getElementById('input-video');
+  if (flag) return;
+
+  flag = true;
 
   await navigator.mediaDevices
     .getUserMedia({ video: true })
@@ -17,35 +49,22 @@ const loadVideo = async () => {
       inputVideo.srcObject = media;
       inputVideo.play();
     })
-    .catch((err) => console.log(err));
+    .catch(() => stopVideo());
 
-  flag = true;
-
-  const loop = async () => {
-    originContext.save();
-    changedContext.save();
-
-    originContext.drawImage(inputVideo, 0, 0, originCanvas.width, originCanvas.height);
-    changedContext.drawImage(inputVideo, 0, 0, changedCanvas.width, changedCanvas.height);
-
-    originContext.restore();
-    changedContext.restore();
-
-    if (flag) requestAnimationFrame(loop);
-  };
-
-  await loop();
+  loopVideoFrame();
 };
 
-const end = () => {
+const stopVideo = () => {
   const inputVideo = document.getElementById('input-video');
 
   if (!flag) return;
 
+  if (inputVideo.srcObject) {
+    inputVideo.srcObject.getTracks()[0].stop();
+    inputVideo.srcObject = null;
+  }
+
   flag = false;
-  stream.getTracks()[0].stop();
-  stream = null;
-  inputVideo.srcObject = null;
 };
 
 window.onload = () => {
