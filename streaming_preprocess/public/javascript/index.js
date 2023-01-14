@@ -29,7 +29,7 @@ const loopVideoFrame = () => {
       .takePhoto()
       .then((blob) => {
         bufferQueue.push(blob);
-        socket.request.emit('test', { data: blob });
+        socket.preProcess.emit('client:preprocess:stream', { data: blob });
       })
       .catch((err) => console.log(err));
   }, 50);
@@ -45,7 +45,6 @@ const loadVideo = async () => {
     .then((media) => {
       const inputVideo = document.getElementById('input-video');
 
-      stream = media;
       inputVideo.srcObject = media;
       inputVideo.play();
     })
@@ -68,5 +67,5 @@ const stopVideo = () => {
 };
 
 window.onload = () => {
-  connectStreamRequest();
+  connectStreamPreProcess();
 };

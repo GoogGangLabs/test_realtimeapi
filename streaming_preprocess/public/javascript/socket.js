@@ -1,17 +1,29 @@
 const socket = {
-  request: undefined,
-  response: undefined,
+  preProcess: undefined,
+  postProcess: undefined,
 };
 
-const connectStreamRequest = () => {
-  socket.request = io('http://localhost:3001');
-  streamRequestOn();
+const connectStreamPreProcess = () => {
+  socket.preProcess = io('http://localhost:3001');
+  streamPreProcessOn();
 };
 
-const streamRequestOn = () => {
+const connectStreamPostProcess = (sessionId) => {
+  socket.postProcess = io('http://localhost:4001', { extraHeaders: { sessionId } });
+  streamPostProcessOn();
+};
+
+const streamPreProcessOn = () => {
+  socket.preProcess.on('server:preprocess:connection', (sessionId) => {
+    connectStreamPostProcess(sessionId);
+  });
+};
+
+const streamPostProcessOn = () => {
   const changedImage = document.getElementById('changed-image');
+  let workerUrl = undefined;
 
-  socket.request.on('test1', () => {
+  socket.postProcess.on('server:postprocess:stream', () => {
     if (workerUrl) {
       // todo: BLOB 데이터 메모리 해제 로직 구현해야 함
       URL.revokeObjectURL(workerUrl);
