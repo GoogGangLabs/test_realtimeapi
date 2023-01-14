@@ -20,7 +20,7 @@
     "paths": {
       "@controller/*": ["./src/controller/*"],
       "@gateway/*": ["./src/gateway/*"],
-      "domain/*": ["./src/domain/*"],
+      "@domain/*": ["./src/domain/*"],
       "@src/*": ["./src/*"]
     }
   }

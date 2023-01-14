@@ -10,12 +10,18 @@ import {
 import { Server } from 'socket.io';
 import { v4 } from 'uuid';
 
-import ClientSocket from 'domain/client.socket';
+import ClientSocket from '@domain/client.socket';
+
+// todo: 정렬
+import { Inject } from '@nestjs/common';
+import { ClientProxy } from '@nestjs/microservices';
 
 @WebSocketGateway(3001, { cors: { origin: 'http://localhost:3000', credentials: true } })
 class StreamGateway implements OnGatewayConnection, OnGatewayDisconnect {
   @WebSocketServer()
   server: Server;
+
+  constructor(@Inject('STREAM_PREPROCESS') private redisClient: ClientProxy) {}
 
   private uuid = () => {
     const tokens = v4().split('-');
@@ -26,6 +32,7 @@ class StreamGateway implements OnGatewayConnection, OnGatewayDisconnect {
     client.sessionId = this.uuid();
     client.join(client.sessionId);
     console.log(client.sessionId);
+    client.emit('preprocess:connection', client.sessionId);
   }
 
   async handleDisconnect(client: ClientSocket) {
@@ -35,8 +42,12 @@ class StreamGateway implements OnGatewayConnection, OnGatewayDisconnect {
   @SubscribeMessage('test')
   test(@ConnectedSocket() client: ClientSocket, @MessageBody('data') data: any) {
     console.log(data);
-    client.emit('test1', {});
-    //
+    this.redisClient.emit('STREAM_PREPROCESS', [client.sessionId, data]);
+  }
+
+  @SubscribeMessage('redis')
+  redis(@ConnectedSocket() client: ClientSocket, data) {
+    console.log('hello');
   }
 }
 
