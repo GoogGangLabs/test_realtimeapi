@@ -16,16 +16,37 @@
 
 프로젝트를 진행하며 필수로 설치되어야 하는 도구의 버전을 명세한 것입니다.<br>
 
-라이브러리의 자세한 버전은 [package.json](../package.json)을 참고해주세요.<br>
+### Node.js
+
+라이브러리의 자세한 버전은 다음을 참고해 주시면 감사합니다.<br>
+
+- [streaming_preprocess](../streaming_preprocess/package.json)
+- [streaming_postprocess](../streaming_postprocess/package.json)
+
+<br>
 
 | **yarn**을 이용해 `@nestjs/cli`를 설치하여 초기 보일러플레이트 코드를 작성하였습니다.
 
 ```PLAIN
-Node.js     : 18.13.0 (LTS)
+Node.js     : 18.13.0 (최신 LTS, 01/12 기준)
 yarn        : 1.22.19
 
 nest        : 9.1.8
 typescript  : 4.7.4
+```
+
+<br>
+
+### Python
+
+라이브러리의 자세한 버전은 다음을 참고해 주시면 감사합니다.<br>
+
+- [requirements.txt](../streaming_deep_learning/requirements.txt)
+
+<br>
+
+```
+python      : 3.10.9
 ```
 
 <br>
