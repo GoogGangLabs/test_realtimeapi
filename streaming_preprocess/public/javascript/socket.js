@@ -23,16 +23,18 @@ const streamPostProcessOn = () => {
   const changedImage = document.getElementById('changed-image');
   let workerUrl = undefined;
 
-  socket.postProcess.on('server:postprocess:stream', () => {
-    if (workerUrl) {
-      // todo: BLOB 데이터 메모리 해제 로직 구현해야 함
-      URL.revokeObjectURL(workerUrl);
-    }
+  socket.postProcess.on('server:postprocess:stream', (base64) => {
+    // if (workerUrl) {
+    //   // todo: BLOB 데이터 메모리 해제 로직 구현해야 함
+    //   URL.revokeObjectURL(workerUrl);
+    // }
 
-    changedImage.src = null;
-    const blob = bufferQueue.pop();
-    workerUrl = URL.createObjectURL(blob);
+    // changedImage.src = null;
+    // const blob = bufferQueue.pop();
+    // const blob = bufferQueue.pop();
+    // workerUrl = URL.createObjectURL(blob);
+    // console.log(base64);
 
-    changedImage.src = workerUrl;
+    changedImage.src = `data:image/jpeg;base64,${base64}`;
   });
 };

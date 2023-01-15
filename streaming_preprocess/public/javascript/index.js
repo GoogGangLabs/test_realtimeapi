@@ -28,8 +28,8 @@ const loopVideoFrame = () => {
     await capture
       .takePhoto()
       .then((blob) => {
-        bufferQueue.push(blob);
-        socket.preProcess.emit('client:preprocess:stream', { data: blob });
+        // bufferQueue.push(blob);
+        socket.preProcess.emit('client:preprocess:stream', { frame: blob });
       })
       .catch((err) => console.log(err));
   }, 50);
