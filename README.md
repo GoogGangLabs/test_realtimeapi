@@ -1,8 +1,6 @@
 # MediaPipe를 이용한 실시간 영상 딥러닝 처리
 
-웹캠으로 실시간 영상을 받아와 딥러닝 처리된 영상을 송출해 주는 프로젝트입니다.<br>
-
-<br>
+웹캠을 통해 받아온 실시간 영상을 서버로 전송하여 MediaPipe를 이용한 딥러닝 처리 후 Client에 송출해주는 프로젝트입니다.<br>
 
 <img width="1498" alt="스크린샷 2023-01-15 오후 10 32 24" src="https://user-images.githubusercontent.com/74334399/212543732-8f570bda-8c7c-4c03-8788-fe3ee2a2b807.png">
 
