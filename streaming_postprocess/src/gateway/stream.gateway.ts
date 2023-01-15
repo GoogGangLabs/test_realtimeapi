@@ -2,7 +2,7 @@ import { OnGatewayConnection, OnGatewayDisconnect, WebSocketGateway, WebSocketSe
 import { Server } from 'socket.io';
 
 import ClientSocket from '@domain/client.socket';
-import StreamObject from '@domain/stream.object';
+import PostStreamDto from '@domain/post.stream.dto';
 
 @WebSocketGateway(4001, { cors: { origin: 'http://localhost:3000', credentials: true } })
 class StreamGateway implements OnGatewayConnection, OnGatewayDisconnect {
@@ -19,8 +19,8 @@ class StreamGateway implements OnGatewayConnection, OnGatewayDisconnect {
     client.disconnect();
   }
 
-  sendStream([sessionId, deepLearningResult]: StreamObject) {
-    this.server.to(sessionId).emit('server:postprocess:stream');
+  sendStream(postStreamDto: PostStreamDto) {
+    this.server.to(postStreamDto.sessionId).emit('server:postprocess:stream', postStreamDto.result);
   }
 }
 
