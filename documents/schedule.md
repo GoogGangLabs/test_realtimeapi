@@ -15,11 +15,27 @@
 
 <br>
 
-## 2023-01-15 (일))
+## 2023-01-16 (월)
 
 > Issue List
 
-- [ ] [#8 영상 Stream 딥러닝 적용 및 좌표 Publishing](https://github.com/jcggl/test_realtimeapi/issues/8)
+- [ ] [MediaPipe 라이브러리로 Client에 holistic 좌표 적용](https://github.com/jcggl/test_realtimeapi/issues/9)
+
+<br>
+
+> Todo List
+
+- Holistic 이미지 테스트
+- Client - Server 싱크 맞추기
+- Latency 최적화
+
+<br>
+
+## 2023-01-15 (일)
+
+> Issue List
+
+- [x] [#8 영상 Stream 딥러닝 적용 및 좌표 Publishing](https://github.com/jcggl/test_realtimeapi/issues/8)
 
 <br>
 
