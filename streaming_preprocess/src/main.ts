@@ -14,7 +14,7 @@ const bootstrap = async () => {
 
   await app.listen(port, () => {
     console.log(`======= ENV: ${process.env.NODE_ENV}`);
-    console.log(`======= Service: Streaming Request`);
+    console.log(`======= Service: Streaming Preprocess`);
     console.log(`🚀 App listening on the port ${port}`);
   });
 };
