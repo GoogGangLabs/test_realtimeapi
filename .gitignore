@@ -38,3 +38,6 @@ venv
 !.vscode/tasks.json
 !.vscode/launch.json
 !.vscode/extensions.json
+
+# Cache
+__pycache__
