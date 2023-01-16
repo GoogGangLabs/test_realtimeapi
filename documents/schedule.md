@@ -8,6 +8,8 @@
 
 ## 📝 목차
 
+- [2023-01-17 (화)](#2023-01-17-화)
+- [2023-01-16 (월)](#2023-01-16-월)
 - [2023-01-15 (일)](#2023-01-15-일)
 - [2023-01-14 (토)](#2023-01-14-토)
 - [2023-01-13 (금)](#2023-01-13-금)
@@ -15,11 +17,28 @@
 
 <br>
 
+## 2023-01-17 (화)
+
+> Issue List
+
+- [ ] [#11 영상 딥러닝 및 전송과정 최적화](https://github.com/jcggl/test_realtimeapi/issues/11)
+
+<br>
+
+> Todo List
+
+- 요청 <-> 응답 간 Latency 최적화 (문서화 예정)
+- Client 영상 송출 로직 최적화
+- Buffer 압축 방법 고민
+
+<br>
+
 ## 2023-01-16 (월)
 
 > Issue List
 
-- [ ] [MediaPipe 라이브러리로 Client에 holistic 좌표 적용](https://github.com/jcggl/test_realtimeapi/issues/9)
+- [x] [#9 MediaPipe 라이브러리로 Client에 holistic 좌표 적용](https://github.com/jcggl/test_realtimeapi/issues/9)
+- [x] [#10 Docker를 이용해 MSA 환경 구축](https://github.com/jcggl/test_realtimeapi/issues/10)
 
 <br>
 
@@ -28,6 +47,8 @@
 - Holistic 이미지 테스트
 - Client - Server 싱크 맞추기
 - Latency 최적화
+- Dockerfile 작성
+- Docker 기반 MSA 환경 구축
 
 <br>
 
