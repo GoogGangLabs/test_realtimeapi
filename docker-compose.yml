@@ -1,0 +1,60 @@
+version: "3.8"
+
+services:
+  streaming_preprocess:
+    container_name: streaming_preprocess
+    build:
+      context: streaming_preprocess
+    image: streaming_preprocess
+    ports:
+      - 3000:3000
+      - 4000:4000
+    depends_on:
+      - streaming_pipeline
+    networks:
+      - goodganglabs
+    env_file:
+      - .env
+
+  streaming_postprocess:
+    container_name: streaming_postprocess
+    build:
+      context: streaming_postprocess
+    image: streaming_postprocess
+    ports:
+      - 5000:5000
+    depends_on:
+      - streaming_pipeline
+    networks:
+      - goodganglabs
+    env_file:
+      - .env
+
+  streaming_deep_learning:
+    container_name: streaming_deep_learning
+    build:
+      context: streaming_deep_learning
+    image: streaming_deep_learning
+    depends_on:
+      - streaming_pipeline
+    networks:
+      - goodganglabs
+    env_file:
+      - .env
+
+  streaming_pipeline:
+    container_name: streaming_pipeline
+    image: redis:7.0.7-alpine
+    expose:
+      - 6379
+    networks:
+      goodganglabs:
+        ipv4_address: ${REDIS_HOST}
+
+networks:
+  goodganglabs:
+    name: goodganglabs
+    ipam:
+      driver: default
+      config:
+        - subnet: ${DEFAULT_SUBNET}

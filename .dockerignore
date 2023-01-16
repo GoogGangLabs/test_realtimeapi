@@ -1,0 +1,22 @@
+# OS
+.DS_Store
+
+# git
+.git
+
+# Docker
+Dockerfile
+
+# Node.js
+dist
+node_modules
+
+# Python
+venv
+__pycache__
+
+# Redis
+*.rdb
+
+# etc
+*.md
