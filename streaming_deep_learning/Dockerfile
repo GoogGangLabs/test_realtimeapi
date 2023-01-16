@@ -1,5 +1,8 @@
 FROM ubuntu:22.04
 
+ENV REDIS_HOST ${REDIS_HOST} \
+    REDIS_PORT ${REDIS_PORT}
+
 RUN mkdir -p /usr/local/app
 WORKDIR /usr/local/app
 COPY . .

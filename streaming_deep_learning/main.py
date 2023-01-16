@@ -1,10 +1,13 @@
-# import threading
+import os
 import redis
 import json
 
 import hands
 
-conn = redis.Redis(host='localhost', port=6379, db=0)
+host = os.environ.get('REDIS_HOST') if os.environ.get('REDIS_HOST') is not None else 'localhost'
+port = int(os.environ.get('REDIS_PORT')) if os.environ.get('REDIS_PORT') is not None else 6379
+
+conn = redis.Redis(host, port, db=0)
 
 def pipeline():
   subscribe(conn.pubsub())
@@ -16,7 +19,6 @@ def subscribe(subscriber):
     message = subscriber.get_message()
     if message is not None and message['type'] == 'message':
       publish(message['data'].decode())
-      # threading.Thread(target=publish, args=(message['data'].decode())).start()
 
 def publish(message):
   data = eval(message)
