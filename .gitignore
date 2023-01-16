@@ -17,6 +17,7 @@ lerna-debug.log*
 # Environments
 .env.dev
 .env.prod
+.env
 venv
 
 # Tests
@@ -41,3 +42,4 @@ venv
 
 # Cache
 __pycache__
+*.rdb
