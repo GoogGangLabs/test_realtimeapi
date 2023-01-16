@@ -28,11 +28,11 @@ const loopVideoFrame = () => {
     await capture
       .takePhoto()
       .then((blob) => {
-        // bufferQueue.push(blob);
+        bufferQueue.push(blob);
         socket.preProcess.emit('client:preprocess:stream', { frame: blob });
       })
       .catch((err) => console.log(err));
-  }, 50);
+  }, 100);
 };
 
 const loadVideo = async () => {
