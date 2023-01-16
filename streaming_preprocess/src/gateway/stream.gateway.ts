@@ -15,7 +15,7 @@ import { v4 } from 'uuid';
 import ClientSocket from '@domain/client.socket';
 import PreStreamDto from '@domain/pre.stream.dto';
 
-@WebSocketGateway(3001, { cors: { origin: 'http://localhost:3000', credentials: true } })
+@WebSocketGateway(4000, { cors: { origin: process.env.CLIENT_HOST, credentials: true } })
 class StreamGateway implements OnGatewayConnection, OnGatewayDisconnect {
   @WebSocketServer()
   private readonly server: Server;

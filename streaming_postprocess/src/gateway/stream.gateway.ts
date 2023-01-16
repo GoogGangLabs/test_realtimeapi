@@ -4,7 +4,7 @@ import { Server } from 'socket.io';
 import ClientSocket from '@domain/client.socket';
 import PostStreamDto from '@domain/post.stream.dto';
 
-@WebSocketGateway(4001, { cors: { origin: 'http://localhost:3000', credentials: true } })
+@WebSocketGateway(5000, { cors: { origin: process.env.CLIENT_HOST, credentials: true } })
 class StreamGateway implements OnGatewayConnection, OnGatewayDisconnect {
   @WebSocketServer()
   private readonly server: Server;

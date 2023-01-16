@@ -1,15 +1,16 @@
+const serverHost = `${window.location.protocol}//${window.location.host.split(':')[0]}`;
 const socket = {
   preProcess: undefined,
   postProcess: undefined,
 };
 
 const connectStreamPreProcess = () => {
-  socket.preProcess = io('http://localhost:3001');
+  socket.preProcess = io(`${serverHost}:4000`);
   streamPreProcessOn();
 };
 
 const connectStreamPostProcess = (sessionId) => {
-  socket.postProcess = io('http://localhost:4001', { extraHeaders: { sessionId } });
+  socket.postProcess = io(`${serverHost}:5000`, { extraHeaders: { sessionId } });
   streamPostProcessOn();
 };
 
