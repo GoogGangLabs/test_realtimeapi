@@ -15,7 +15,7 @@ import { v4 } from 'uuid';
 import ClientSocket from '@domain/client.socket';
 import PreStreamDto from '@domain/pre.stream.dto';
 
-@WebSocketGateway(4000, { cors: { origin: process.env.CLIENT_HOST, credentials: true } })
+@WebSocketGateway(4000, { cors: { origin: '*', credentials: true } })
 class StreamGateway implements OnGatewayConnection, OnGatewayDisconnect {
   @WebSocketServer()
   private readonly server: Server;
@@ -39,7 +39,7 @@ class StreamGateway implements OnGatewayConnection, OnGatewayDisconnect {
   }
 
   @SubscribeMessage('client:preprocess:stream')
-  receiveStream(@ConnectedSocket() client: ClientSocket, @MessageBody('frame') frame: Buffer) {
+  receiveStream(@ConnectedSocket() client: ClientSocket, @MessageBody('frame') frame: string) {
     this.redisClient.emit('STREAM_PREPROCESS', PreStreamDto.fromData(client.sessionId, frame));
   }
 }
