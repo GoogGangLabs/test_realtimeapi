@@ -20,18 +20,21 @@ const bufferQueue = new BufferQueue();
 
 const loopVideoFrame = () => {
   const inputVideo = document.getElementById('input-video');
-  const capture = new ImageCapture(inputVideo.srcObject.getVideoTracks()[0]);
+  const bufferCanvas = document.getElementById('buffer-canvas');
+  const changedCanvas = document.getElementById('changed-canvas');
+  const width = changedCanvas.width;
+  const height = changedCanvas.height;
 
-  const loopInterval = setInterval(async () => {
+  const loopInterval = setInterval(() => {
     if (!flag) clearInterval(loopInterval);
 
-    await capture
-      .takePhoto()
-      .then((blob) => {
-        bufferQueue.push(blob);
-        socket.preProcess.emit('client:preprocess:stream', { frame: blob });
-      })
-      .catch((err) => console.log(err));
+    bufferCanvas.getContext('2d').drawImage(inputVideo, 0, 0, width, height);
+    const frame = bufferCanvas.toDataURL('image/jpeg', 1).split(',')[1];
+
+    if (frame.length === 1392) return;
+
+    bufferQueue.push(frame);
+    socket.preProcess.emit('client:preprocess:stream', { frame });
   }, 100);
 };
 

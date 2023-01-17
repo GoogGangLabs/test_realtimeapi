@@ -7,8 +7,8 @@ class PreStreamDto {
     this.frame = frame;
   }
 
-  public static fromData(sessionId: string, frame: Buffer) {
-    return new PreStreamDto(sessionId, frame.toString('base64'));
+  public static fromData(sessionId: string, frame: string) {
+    return new PreStreamDto(sessionId, frame);
   }
 }
 
