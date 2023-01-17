@@ -17,11 +17,25 @@
 
 <br>
 
+## 2023-01-18 (수)
+
+> Issue List
+
+- [ ] [#12 AWS EC2 서버 배포](https://github.com/jcggl/test_realtimeapi/issues/12)
+
+<br>
+
+> Todo List
+
+- 이미지 해상도 높여서 테스트
+- 딥러닝 서버 분산 프로세스 또는 스레드 적용
+- AWS EC2 서버 배포
+
 ## 2023-01-17 (화)
 
 > Issue List
 
-- [ ] [#11 영상 딥러닝 및 전송과정 최적화](https://github.com/jcggl/test_realtimeapi/issues/11)
+- [x] [#11 영상 딥러닝 및 전송과정 최적화](https://github.com/jcggl/test_realtimeapi/issues/11)
 
 <br>
 
