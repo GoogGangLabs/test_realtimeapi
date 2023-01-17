@@ -18,6 +18,11 @@
       integrity="sha384-/KNQL8Nu5gCHLqwqfQjA689Hhoqgi2S84SNUxC3roTe4EhJ9AfLkp8QiQcU8AMzI"
       crossorigin="anonymous"
     ></script>
+    <script
+      src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils/drawing_utils.js"
+      crossorigin="anonymous"
+    ></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/holistic/holistic.js" crossorigin="anonymous"></script>
   </head>
   <body>
     <div class="container">
@@ -33,7 +38,8 @@
         </div>
       </div>
       <div class="changed-container">
-        <img id="changed-image" />
+        <canvas id="buffer-canvas"></canvas>
+        <canvas id="changed-canvas"></canvas>
       </div>
     </div>
   </body>

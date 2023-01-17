@@ -68,15 +68,19 @@
   background-color: #000000;
 }
 
-#changed-image {
+#changed-canvas {
   width: 100%;
   max-height: 100%;
   display: block;
   position: relative;
   left: 0;
   top: 0;
-  /* background-color: #32a1ce; */
-  /* z-index: 10; */
+  background-color: #32a1ce;
+  z-index: 10;
+}
+
+#buffer-canvas {
+  display: none;
 }
 
 .button-default {
