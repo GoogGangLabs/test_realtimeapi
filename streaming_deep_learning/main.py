@@ -2,7 +2,7 @@ import os
 import redis
 import json
 
-import hands
+import holistic
 
 host = os.environ.get('REDIS_HOST') if os.environ.get('REDIS_HOST') is not None else 'localhost'
 port = int(os.environ.get('REDIS_PORT')) if os.environ.get('REDIS_PORT') is not None else 6379
@@ -22,7 +22,7 @@ def subscribe(subscriber):
 
 def publish(message):
   data = eval(message)
-  result = hands.process(data['data']['frame'])
+  result = holistic.process(data['data']['frame'])
   dict = {'sessionId': data['data']['sessionId'], 'result': result}
   conn.publish(channel='STREAM_POSTPROCESS', message=json.dumps(dict).encode())
 
