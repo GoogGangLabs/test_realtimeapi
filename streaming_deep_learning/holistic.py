@@ -17,7 +17,9 @@ def get_landmark_list(landmarks):
     element['x'] = landmark.x
     element['y'] = landmark.y
     element['z'] = landmark.z
-    element['visibility'] = landmark.visibility
+
+    if landmark.visibility > 0.0:
+      element['visibility'] = landmark.visibility
 
     landmark_list.append(element)
 
