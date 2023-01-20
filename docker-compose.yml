@@ -82,4 +82,4 @@ networks:
       driver: default
       config:
         - subnet: ${DEFAULT_SUBNET}
-        - gateway: ${DEFAULT_GATEWAY}
+          gateway: ${DEFAULT_GATEWAY}
