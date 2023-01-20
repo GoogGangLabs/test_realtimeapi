@@ -3,7 +3,6 @@ FROM alpine:3.17
 RUN mkdir -p /usr/local/app
 WORKDIR /usr/local/app
 
-RUN echo "REDIS_HOST=${REDIS_HOST}\nREDIS_PORT=${REDIS_PORT}" > .env.prod
 
 RUN apk update && \
     apk add nodejs-lts npm && \
@@ -14,5 +13,7 @@ RUN yarn
 
 COPY . .
 RUN yarn build
+
+RUN echo "REDIS_HOST=${REDIS_HOST}\nREDIS_PORT=${REDIS_PORT}" > .env.prod
 
 ENTRYPOINT [ "yarn", "deploy" ]
