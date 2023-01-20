@@ -6,29 +6,33 @@ services:
     build:
       context: streaming_preprocess
     image: streaming_preprocess
-    ports:
-      - 3000:3000
-      - 4000:4000
+    expose:
+      - 3000
+      - 4000
     depends_on:
       - streaming_pipeline
     networks:
-      - goodganglabs
+      goodganglabs:
+        ipv4_address: ${PREPROCESS_HOST}
     env_file:
       - .env
+    restart: always
 
   streaming_postprocess:
     container_name: streaming_postprocess
     build:
       context: streaming_postprocess
     image: streaming_postprocess
-    ports:
-      - 5000:5000
+    expose:
+      - 5000
     depends_on:
       - streaming_pipeline
     networks:
-      - goodganglabs
+      goodganglabs:
+        ipv4_address: ${POSTPROCESS_HOST}
     env_file:
       - .env
+    restart: always
 
   streaming_deep_learning:
     container_name: streaming_deep_learning
@@ -38,9 +42,11 @@ services:
     depends_on:
       - streaming_pipeline
     networks:
-      - goodganglabs
+      goodganglabs:
+        ipv4_address: ${DEEP_LEARNING_HOST}
     env_file:
       - .env
+    restart: always
 
   streaming_pipeline:
     container_name: streaming_pipeline
@@ -50,6 +56,24 @@ services:
     networks:
       goodganglabs:
         ipv4_address: ${REDIS_HOST}
+    restart: always
+
+  streaming_router:
+    container_name: streaming_router
+    build:
+      context: streaming_router
+    image: streaming_router
+    ports:
+      - 80:80
+      - 443:80
+      - 4000:4000
+      - 5000:5000
+    networks:
+      goodganglabs:
+        ipv4_address: ${NGINX_HOST}
+    env_file:
+      - .env
+    restart: always
 
 networks:
   goodganglabs:
@@ -58,3 +82,4 @@ networks:
       driver: default
       config:
         - subnet: ${DEFAULT_SUBNET}
+        - gateway: ${DEFAULT_GATEWAY}
