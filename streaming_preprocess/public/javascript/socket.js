@@ -1,4 +1,7 @@
-const serverHost = `${window.location.protocol}//${window.location.host.split(':')[0]}`;
+const socketHost = {
+  preprocess: undefined,
+  postprocess: undefined,
+};
 const socket = {
   preProcess: undefined,
   postProcess: undefined,
@@ -23,12 +26,12 @@ function connect(ctx, connectors) {
 }
 
 const connectStreamPreProcess = () => {
-  socket.preProcess = io(`${serverHost}:4000`);
+  socket.preProcess = io(socketHost.preprocess);
   streamPreProcessOn();
 };
 
 const connectStreamPostProcess = (sessionId) => {
-  socket.postProcess = io(`${serverHost}:5000`, { extraHeaders: { sessionId } });
+  socket.postProcess = io(socketHost.postprocess, { extraHeaders: { sessionId } });
   streamPostProcessOn();
 };
 

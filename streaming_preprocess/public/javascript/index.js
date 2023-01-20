@@ -8,11 +8,6 @@ class BufferQueue {
   pop() {
     return this._list.shift();
   }
-
-  // todo: delete: test code
-  size() {
-    console.log(this._list.length);
-  }
 }
 
 let flag = false;
@@ -70,5 +65,10 @@ const stopVideo = () => {
 };
 
 window.onload = () => {
+  let host = `${window.location.protocol}//${window.location.host.split(':')[0]}`;
+
+  socketHost.preprocess = `${host}:4000`;
+  socketHost.postprocess = `${host}:5000`;
+
   connectStreamPreProcess();
 };
