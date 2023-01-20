@@ -66,8 +66,6 @@ services:
     ports:
       - 80:80
       - 443:80
-      - 4000:4000
-      - 5000:5000
     networks:
       goodganglabs:
         ipv4_address: ${NGINX_HOST}
