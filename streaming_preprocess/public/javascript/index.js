@@ -64,11 +64,13 @@ const stopVideo = () => {
   flag = false;
 };
 
-window.onload = () => {
-  let host = `${window.location.protocol}//${window.location.host.split(':')[0]}`;
+const initialHostSetting = (environment) => {
+  const host = `${window.location.protocol}//${window.location.host.split(':')[0]}`;
 
-  socketHost.preprocess = `${host}:4000`;
-  socketHost.postprocess = `${host}:5000`;
+  socketHost.preprocess = environment === 'prod' ? `${host}` : `${host}:4000`;
+  socketHost.postprocess = environment === 'prod' ? `${host}` : `${host}:5000`;
+  socketPath.preprocess = environment === 'prod' ? '/preprocess' : '/socket.io';
+  socketPath.postprocess = environment === 'prod' ? '/postprocess' : '/socket.io';
 
   connectStreamPreProcess();
 };

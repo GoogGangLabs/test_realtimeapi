@@ -2,6 +2,10 @@ const socketHost = {
   preprocess: undefined,
   postprocess: undefined,
 };
+const socketPath = {
+  preprocess: undefined,
+  postprocess: undefined,
+};
 const socket = {
   preProcess: undefined,
   postProcess: undefined,
@@ -26,12 +30,12 @@ function connect(ctx, connectors) {
 }
 
 const connectStreamPreProcess = () => {
-  socket.preProcess = io(socketHost.preprocess);
+  socket.preProcess = io(socketHost.preprocess, { path: '/preprocess' });
   streamPreProcessOn();
 };
 
 const connectStreamPostProcess = (sessionId) => {
-  socket.postProcess = io(socketHost.postprocess, { extraHeaders: { sessionId } });
+  socket.postProcess = io(socketHost.postprocess, { path: '/postprocess', extraHeaders: { sessionId } });
   streamPostProcessOn();
 };
 

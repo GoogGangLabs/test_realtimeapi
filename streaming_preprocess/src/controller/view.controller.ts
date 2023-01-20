@@ -5,7 +5,7 @@ class ViewController {
   @Get()
   @Render('index.ejs')
   index() {
-    return;
+    return { environment: process.env.NODE_ENV };
   }
 
   @All(':page')
