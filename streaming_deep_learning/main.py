@@ -1,6 +1,7 @@
 import os
 import redis
 import json
+import asyncio
 
 import holistic
 
@@ -18,9 +19,9 @@ def subscribe(subscriber):
   while True:
     message = subscriber.get_message()
     if message is not None and message['type'] == 'message':
-      publish(message['data'].decode())
+      asyncio.run(publish(message['data'].decode()))
 
-def publish(message):
+async def publish(message):
   data = eval(message)
   result = holistic.process(data['data']['frame'])
   dict = {'sessionId': data['data']['sessionId'], 'result': result}
