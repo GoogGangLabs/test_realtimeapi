@@ -1,3 +1,5 @@
+import { Inject, CACHE_MANAGER } from '@nestjs/common';
+import { Cache } from 'cache-manager';
 import { OnGatewayConnection, OnGatewayDisconnect, WebSocketGateway, WebSocketServer } from '@nestjs/websockets';
 import { Server } from 'socket.io';
 
@@ -8,6 +10,8 @@ import PostStreamDto from '@domain/post.stream.dto';
 class StreamGateway implements OnGatewayConnection, OnGatewayDisconnect {
   @WebSocketServer()
   private readonly server: Server;
+
+  constructor(@Inject(CACHE_MANAGER) private cacheManager: Cache) {}
 
   handleConnection(client: ClientSocket) {
     client.sessionId = String(client.handshake.headers['sessionid']);

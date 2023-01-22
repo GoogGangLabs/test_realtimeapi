@@ -1,6 +1,7 @@
-import { Module } from '@nestjs/common';
+import { Module, CacheModule } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { ClientsModule, Transport } from '@nestjs/microservices';
+import RedisStore from 'cache-manager-ioredis';
 
 import StreamGateway from '@gateway/stream.gateway';
 
@@ -20,6 +21,11 @@ import StreamGateway from '@gateway/stream.gateway';
         }),
       },
     ]),
+    CacheModule.register({
+      store: RedisStore,
+      host: process.env.REDIS_HOST,
+      port: process.env.REDIS_PORT,
+    }),
   ],
   providers: [StreamGateway],
 })

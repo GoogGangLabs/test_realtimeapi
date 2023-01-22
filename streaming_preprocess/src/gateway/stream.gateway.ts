@@ -1,5 +1,6 @@
-import { Inject } from '@nestjs/common';
+import { CACHE_MANAGER, Inject } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
+import { Cache } from 'cache-manager';
 import {
   ConnectedSocket,
   MessageBody,
@@ -20,7 +21,10 @@ class StreamGateway implements OnGatewayConnection, OnGatewayDisconnect {
   @WebSocketServer()
   private readonly server: Server;
 
-  constructor(@Inject('STREAM_SERVICE') private redisClient: ClientProxy) {}
+  constructor(
+    @Inject('STREAM_SERVICE') private redisClient: ClientProxy,
+    @Inject(CACHE_MANAGER) private cacheManager: Cache
+  ) {}
 
   private uuid = () => {
     const tokens = v4().split('-');
@@ -28,12 +32,24 @@ class StreamGateway implements OnGatewayConnection, OnGatewayDisconnect {
   };
 
   async handleConnection(client: ClientSocket) {
+    const code = String(client.handshake.headers['code']);
+    const sessionId = String(client.handshake.headers['sessionId']);
+
+    if ((code && code !== process.env.ENTRY_CODE) || (sessionId && (await this.cacheManager.get(sessionId)))) {
+      client.emit('server:error', '인증정보가 유효하지 않습니다.');
+      return;
+    }
+
     client.sessionId = this.uuid();
+
+    await this.cacheManager.set(client.sessionId, 1);
+
     client.join(client.sessionId);
     client.emit('server:preprocess:connection', client.sessionId);
   }
 
   async handleDisconnect(client: ClientSocket) {
+    await this.cacheManager.set(client.sessionId, 0);
     client.rooms.clear();
     client.disconnect();
   }
