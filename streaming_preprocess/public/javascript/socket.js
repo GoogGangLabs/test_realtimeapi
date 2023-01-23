@@ -11,31 +11,13 @@ const socket = {
   postProcess: undefined,
 };
 
-function connect(ctx, connectors) {
-  const canvas = ctx.canvas;
-
-  for (const connector of connectors) {
-    const from = connector[0];
-    const to = connector[1];
-    if (from && to) {
-      if (from.visibility && to.visibility && (from.visibility < 0.1 || to.visibility < 0.1)) {
-        continue;
-      }
-      ctx.beginPath();
-      ctx.moveTo(from.x * canvas.width, from.y * canvas.height);
-      ctx.lineTo(to.x * canvas.width, to.y * canvas.height);
-      ctx.stroke();
-    }
-  }
-}
-
 const connectStreamPreProcess = () => {
-  socket.preProcess = io(socketHost.preprocess, { path: '/preprocess' });
+  socket.preProcess = io(socketHost.preprocess, { path: socketPath.preprocess });
   streamPreProcessOn();
 };
 
 const connectStreamPostProcess = (sessionId) => {
-  socket.postProcess = io(socketHost.postprocess, { path: '/postprocess', extraHeaders: { sessionId } });
+  socket.postProcess = io(socketHost.postprocess, { path: socketPath.postprocess, extraHeaders: { sessionId } });
   streamPostProcessOn();
 };
 
@@ -52,7 +34,7 @@ const streamPostProcessOn = () => {
   const changedContext = changedCanvas.getContext('2d');
   const originContext = originCanvas.getContext('2d');
 
-  socket.postProcess.on('server:postprocess:stream', async (results) => {
+  socket.postProcess.on('server:postprocess:stream', (results) => {
     const base64Data = bufferQueue.pop();
 
     image.onload = () => {
