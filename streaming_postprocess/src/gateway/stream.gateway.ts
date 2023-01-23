@@ -13,8 +13,15 @@ class StreamGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
   constructor(@Inject(CACHE_MANAGER) private cacheManager: Cache) {}
 
-  handleConnection(client: ClientSocket) {
-    client.sessionId = String(client.handshake.headers['sessionid']);
+  async handleConnection(client: ClientSocket) {
+    const sessionId = String(client.handshake.headers['sessionId']);
+
+    if (sessionId && !(await this.cacheManager.get(sessionId))) {
+      client.emit('server:postprocess:error', '인증정보가 유효하지 않습니다.');
+      return;
+    }
+
+    client.sessionId = sessionId;
     client.join(client.sessionId);
   }
 

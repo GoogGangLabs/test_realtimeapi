@@ -1,4 +1,4 @@
-import { CACHE_MANAGER, Inject } from '@nestjs/common';
+import { Inject, CACHE_MANAGER } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
 import { Cache } from 'cache-manager';
 import {
@@ -36,11 +36,11 @@ class StreamGateway implements OnGatewayConnection, OnGatewayDisconnect {
     const sessionId = String(client.handshake.headers['sessionId']);
 
     if ((code && code !== process.env.ENTRY_CODE) || (sessionId && (await this.cacheManager.get(sessionId)))) {
-      client.emit('server:error', '인증정보가 유효하지 않습니다.');
+      client.emit('server:preprocess:error', '인증정보가 유효하지 않습니다.');
       return;
     }
 
-    client.sessionId = this.uuid();
+    client.sessionId = sessionId || this.uuid();
 
     await this.cacheManager.set(client.sessionId, 1);
 
