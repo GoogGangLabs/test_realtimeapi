@@ -1,4 +1,4 @@
-import { Inject, CACHE_MANAGER } from '@nestjs/common';
+import { CACHE_MANAGER, Inject } from '@nestjs/common';
 import { Cache } from 'cache-manager';
 import { OnGatewayConnection, OnGatewayDisconnect, WebSocketGateway, WebSocketServer } from '@nestjs/websockets';
 import { Server } from 'socket.io';
@@ -11,10 +11,10 @@ class StreamGateway implements OnGatewayConnection, OnGatewayDisconnect {
   @WebSocketServer()
   private readonly server: Server;
 
-  constructor(@Inject(CACHE_MANAGER) private cacheManager: Cache) {}
+  constructor(@Inject(CACHE_MANAGER) private readonly cacheManager: Cache) {}
 
   async handleConnection(client: ClientSocket) {
-    const sessionId = String(client.handshake.headers['sessionId']);
+    const sessionId = client.handshake.headers['sessionid'] as string;
 
     if (sessionId && !(await this.cacheManager.get(sessionId))) {
       client.emit('server:postprocess:error', '인증정보가 유효하지 않습니다.');

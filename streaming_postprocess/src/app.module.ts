@@ -1,7 +1,7 @@
 import { Module, CacheModule } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { path } from 'app-root-path';
-import RedisStore from 'cache-manager-ioredis';
+import * as redisStore from 'cache-manager-ioredis';
 
 import ControllerModule from '@controller/controller.module';
 import GatewayModule from '@gateway/gateway.module';
@@ -14,9 +14,9 @@ import GatewayModule from '@gateway/gateway.module';
     }),
     CacheModule.register({
       isGlobal: true,
-      store: RedisStore,
-      host: process.env.REDIS_HOST,
-      port: process.env.REDIS_PORT,
+      store: redisStore,
+      host: process.env.REDIS_HOST || 'localhost',
+      port: process.env.REDIS_PORT || 6379,
     }),
     ControllerModule,
     GatewayModule,

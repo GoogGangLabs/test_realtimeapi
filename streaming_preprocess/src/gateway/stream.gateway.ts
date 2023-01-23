@@ -1,6 +1,5 @@
-import { Inject, CACHE_MANAGER } from '@nestjs/common';
+import { CACHE_MANAGER, Inject } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
-import { Cache } from 'cache-manager';
 import {
   ConnectedSocket,
   MessageBody,
@@ -15,6 +14,7 @@ import { v4 } from 'uuid';
 
 import ClientSocket from '@domain/client.socket';
 import PreStreamDto from '@domain/pre.stream.dto';
+import { Cache } from 'cache-manager';
 
 @WebSocketGateway(4000, { cors: { origin: '*', credentials: true } })
 class StreamGateway implements OnGatewayConnection, OnGatewayDisconnect {
@@ -22,8 +22,8 @@ class StreamGateway implements OnGatewayConnection, OnGatewayDisconnect {
   private readonly server: Server;
 
   constructor(
-    @Inject('STREAM_SERVICE') private redisClient: ClientProxy,
-    @Inject(CACHE_MANAGER) private cacheManager: Cache
+    @Inject('STREAM_SERVICE') private readonly redisClient: ClientProxy,
+    @Inject(CACHE_MANAGER) private readonly cacheManager: Cache
   ) {}
 
   private uuid = () => {
@@ -32,8 +32,8 @@ class StreamGateway implements OnGatewayConnection, OnGatewayDisconnect {
   };
 
   async handleConnection(client: ClientSocket) {
-    const code = String(client.handshake.headers['code']);
-    const sessionId = String(client.handshake.headers['sessionId']);
+    const code = client.handshake.headers['code'] as string;
+    const sessionId = client.handshake.headers['sessionid'] as string;
 
     if ((code && code !== process.env.ENTRY_CODE) || (sessionId && (await this.cacheManager.get(sessionId)))) {
       client.emit('server:preprocess:error', '인증정보가 유효하지 않습니다.');
