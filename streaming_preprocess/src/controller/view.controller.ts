@@ -1,11 +1,17 @@
 import { All, Controller, Get, Render } from '@nestjs/common';
 
-@Controller('/')
+@Controller('')
 class ViewController {
   @Get()
   @Render('index.ejs')
   index() {
     return { environment: process.env.NODE_ENV };
+  }
+
+  @Get('/entrypoint')
+  @Render('entrypoint.ejs')
+  entrypoint() {
+    return;
   }
 
   @All(':page')

@@ -15,9 +15,11 @@ class StreamGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
   async handleConnection(client: ClientSocket) {
     const sessionId = client.handshake.headers['sessionid'] as string;
+    const sessionValue = await this.cacheManager.get(sessionId);
 
-    if (sessionId && !(await this.cacheManager.get(sessionId))) {
+    if (!sessionId || !sessionValue) {
       client.emit('server:postprocess:error', '인증정보가 유효하지 않습니다.');
+      await this.handleDisconnect(client);
       return;
     }
 
@@ -25,7 +27,7 @@ class StreamGateway implements OnGatewayConnection, OnGatewayDisconnect {
     client.join(client.sessionId);
   }
 
-  handleDisconnect(client: ClientSocket) {
+  async handleDisconnect(client: ClientSocket) {
     client.rooms.clear();
     client.disconnect();
   }
