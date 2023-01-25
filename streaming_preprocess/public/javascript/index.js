@@ -16,14 +16,11 @@ const bufferQueue = new BufferQueue();
 const loopVideoFrame = () => {
   const inputVideo = document.getElementById('input-video');
   const bufferCanvas = document.getElementById('buffer-canvas');
-  const changedCanvas = document.getElementById('changed-canvas');
-  const width = changedCanvas.width;
-  const height = changedCanvas.height;
 
   const loopInterval = setInterval(() => {
     if (!flag) clearInterval(loopInterval);
 
-    bufferCanvas.getContext('2d').drawImage(inputVideo, 0, 0, width, height);
+    bufferCanvas.getContext('2d').drawImage(inputVideo, 0, 0, bufferCanvas.width, bufferCanvas.height);
     const frame = bufferCanvas.toDataURL('image/jpeg', 1).split(',')[1];
 
     if (frame.length === 1392) return;

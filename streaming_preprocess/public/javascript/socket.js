@@ -40,7 +40,7 @@ const streamPostProcessOn = () => {
     image.onload = () => {
       changedContext.save();
       changedContext.drawImage(image, 0, 0, changedCanvas.width, changedCanvas.height);
-      originContext.drawImage(image, 0, 0);
+      originContext.drawImage(image, 0, 0, originCanvas.width, originCanvas.height);
 
       changedContext.globalCompositeOperation = 'source-over';
 

@@ -8,6 +8,10 @@
   transform: scale(-1, 1);
 }
 
+#buffer-canvas {
+  display: none;
+}
+
 #initial-canvas {
   display: none;
   position: absolute;
@@ -77,10 +81,6 @@
   top: 0;
   background-color: #32a1ce;
   z-index: 10;
-}
-
-#buffer-canvas {
-  display: none;
 }
 
 .button-default {
