@@ -28,7 +28,7 @@
 | **yarn**을 이용해 `@nestjs/cli`를 설치하여 초기 보일러플레이트 코드를 작성하였습니다.
 
 ```PLAIN
-Node.js     : 18.13.0 (최신 LTS, 01/12 기준)
+Node.js     : 18.12.1 (Alpine linux 3.17에서 지원하는 최신 LTS 버전)
 yarn        : 1.22.19
 
 nest        : 9.1.8
@@ -49,6 +49,14 @@ typescript  : 4.7.4
 python      : 3.10.9
 ```
 
+<br>
+
+### ETC
+
+```
+python      : 7.0.7
+nginx       : 1.22.1
+```
 <br>
 
 ## 💬 깃 컨벤션
