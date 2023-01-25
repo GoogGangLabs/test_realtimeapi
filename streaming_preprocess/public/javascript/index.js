@@ -61,8 +61,12 @@ const stopVideo = () => {
   flag = false;
 };
 
-const initialHostSetting = (environment) => {
+const initialHostSetting = async (environment) => {
   const host = `${window.location.protocol}//${window.location.host.split(':')[0]}`;
+
+  await axios.get(`${environment === 'prod' ? host : `${host}:3000`}/auth/code`).catch((error) => {
+    window.location.href = '/entrypoint';
+  });
 
   socketHost.preprocess = environment === 'prod' ? `${host}` : `${host}:4000`;
   socketHost.postprocess = environment === 'prod' ? `${host}` : `${host}:5000`;

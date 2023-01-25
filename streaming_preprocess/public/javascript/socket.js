@@ -10,20 +10,31 @@ const socket = {
   preProcess: undefined,
   postProcess: undefined,
 };
+const sessionId = document.cookie
+  ? document.cookie
+      .split('; ')
+      .find((elem) => elem.includes('sessionId'))
+      .split('=')[1]
+  : '';
 
 const connectStreamPreProcess = () => {
-  socket.preProcess = io(socketHost.preprocess, { path: socketPath.preprocess });
+  socket.preProcess = io(socketHost.preprocess, { path: socketPath.preprocess, extraHeaders: { sessionId } });
   streamPreProcessOn();
 };
 
-const connectStreamPostProcess = (sessionId) => {
+const connectStreamPostProcess = () => {
   socket.postProcess = io(socketHost.postprocess, { path: socketPath.postprocess, extraHeaders: { sessionId } });
   streamPostProcessOn();
 };
 
 const streamPreProcessOn = () => {
-  socket.preProcess.on('server:preprocess:connection', (sessionId) => {
-    connectStreamPostProcess(sessionId);
+  socket.preProcess.on('server:preprocess:connection', () => {
+    connectStreamPostProcess();
+  });
+
+  socket.preProcess.on('server:preprocess:error', (message) => {
+    window.location.href = '/entrypoint';
+    alert(message);
   });
 };
 
@@ -33,6 +44,11 @@ const streamPostProcessOn = () => {
   const originCanvas = document.getElementById('origin-canvas');
   const changedContext = changedCanvas.getContext('2d');
   const originContext = originCanvas.getContext('2d');
+
+  socket.postProcess.on('server:postprocess:error', (message) => {
+    window.location.href = '/entrypoint';
+    alert(message);
+  });
 
   socket.postProcess.on('server:postprocess:stream', (results) => {
     const base64Data = bufferQueue.pop();
