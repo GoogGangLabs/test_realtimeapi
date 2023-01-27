@@ -8,7 +8,7 @@
 
 ### 데모 페이지 - [https://goodgnadlabs.xyz](https://goodganglabs.xyz)
 
-### API 명세 - [https://goodganglabs.xyz/api-docs](https://goodganglabs.xyz/api-docs)
+### API 명세 - [api.md](https://github.com/jcggl/test_realtimeapi/blob/main/documents/api.md)
 
 <br>
 
