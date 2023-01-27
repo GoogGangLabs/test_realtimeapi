@@ -7,7 +7,6 @@ import {
   Post,
   Req,
   Res,
-  ForbiddenException,
   UnauthorizedException,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
@@ -35,7 +34,7 @@ class AuthController {
     const sessionValue = await this.cacheManager.get(sessionId);
 
     if (!sessionId || !sessionValue) {
-      throw new UnauthorizedException();
+      throw new UnauthorizedException('인증정보가 유효하지 않습니다.');
     }
 
     res.status(200).json({ status: 200, message: 'OK' });
@@ -46,7 +45,7 @@ class AuthController {
     const sessionId = this.uuid();
 
     if (body.code !== this.configService.get('ENTRY_CODE')) {
-      throw new ForbiddenException('인증정보가 유효하지 않습니다.');
+      throw new UnauthorizedException('인증정보가 유효하지 않습니다.');
     }
 
     await this.cacheManager.set(sessionId, 1);
