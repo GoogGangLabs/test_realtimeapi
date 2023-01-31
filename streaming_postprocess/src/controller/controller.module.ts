@@ -1,9 +1,9 @@
 import { Module } from '@nestjs/common';
-import RedisController from '@controller/redis.controller';
+import RabbitMQController from '@controller/rabbitmq.controller';
 import StreamGateway from '@gateway/stream.gateway';
 
 @Module({
-  controllers: [RedisController],
+  controllers: [RabbitMQController],
   providers: [StreamGateway],
 })
 class ControllerModule {}

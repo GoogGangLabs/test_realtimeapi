@@ -6,7 +6,7 @@ import StreamGateway from '@gateway/stream.gateway';
 import PostStreamDto from '@domain/post.stream.dto';
 
 @Controller()
-class RedisController {
+class RabbitMQController {
   constructor(private readonly streamGateway: StreamGateway) {}
 
   @EventPattern('STREAM_POSTPROCESS')
@@ -15,4 +15,4 @@ class RedisController {
   }
 }
 
-export default RedisController;
+export default RabbitMQController;
