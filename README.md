@@ -4,7 +4,7 @@
 
 <img width="1470" alt="Screen Shot 2023-01-25 at 7 57 06 PM" src="https://user-images.githubusercontent.com/74334399/214546213-ed6f75d5-ecce-4759-bba4-0ed54d151e17.png">
 
-> 저사양 서버 사용으로 인해 저해상도 영상으로 딥러닝 처리를 하여, 딥러닝 결과가 부정확한 점 참고해 주시면 감사합니다.
+> 저사양 서버 사용으로 인해 저해상도 영상으로 딥러닝 처리를 하여, 딥러닝 결과가 주변 환경에 영향을 많이 받는 점 참고해 주시면 감사합니다.
 
 ### 데모 페이지 - [https://goodgnadlabs.xyz](https://goodganglabs.xyz)
 
