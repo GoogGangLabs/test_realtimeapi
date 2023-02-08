@@ -1,12 +1,9 @@
-FROM alpine:3.17
+FROM rabbitmq:3.11.8-management-alpine
 
-RUN mkdir -p /etc/rabbitmq
+WORKDIR /usr/local/app
 
-RUN echo @repository http://nl.alpinelinux.org/alpine/edge/testing >> /etc/apk/repositories && \
-    apk update && \
-    apk add bash rabbitmq-server@repository
+COPY rabbitmq.conf /etc/rabbitmq/
+COPY definitions.json /etc/rabbitmq/
+COPY entrypoint.sh hashing.py ./
 
-COPY rabbitmq.conf /etc/rabbitmq
-COPY definitions.json /etc/rabbitmq
-
-CMD [ "rabbitmq-server" ]
+ENTRYPOINT [ "sh", "./entrypoint.sh" ]

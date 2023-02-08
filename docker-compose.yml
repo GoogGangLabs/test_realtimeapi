@@ -10,8 +10,8 @@ services:
       - 3000
       - 4000
     depends_on:
-      - streaming_cache_store
       - streaming_pipeline
+      - streaming_cache_store
     networks:
       goodganglabs:
         ipv4_address: ${PREPROCESS_HOST}
@@ -27,8 +27,8 @@ services:
     expose:
       - 5000
     depends_on:
-      - streaming_cache_store
       - streaming_pipeline
+      - streaming_cache_store
     networks:
       goodganglabs:
         ipv4_address: ${POSTPROCESS_HOST}
@@ -62,16 +62,17 @@ services:
   
   streaming_pipeline:
     container_name: streaming_pipeline
-    image: rabbitmq:3.11.8-management-alpine
+    build:
+      context: streaming_pipeline
+    image: streaming_pipeline
     ports:
       - 5672:5672
       - 15672:15672
     networks:
       goodganglabs:
         ipv4_address: ${RABBITMQ_HOST}
-    volumes:
-      - ./streaming_pipeline/rabbitmq.conf:/etc/rabbitmq/conf.d/10-rabbitmq.conf
-      - ./streaming_pipeline/definitions.json:/etc/rabbitmq/definitions.json
+    env_file:
+      - .env
     restart: always
 
   streaming_router:

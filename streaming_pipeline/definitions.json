@@ -5,7 +5,7 @@
     "product_version": "3.11.8",
     "users": [{
         "name": "ggl",
-        "password_hash": "7DFE419C8E08ABB023F926BB2052B1D83CB97AC7E277BE5DF485AF41D80A4682",
+        "password_hash": "PASSWORD",
         "hashing_algorithm": "rabbit_password_hashing_sha256",
         "tags": "administrator"
     }],
