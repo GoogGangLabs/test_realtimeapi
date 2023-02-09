@@ -83,6 +83,9 @@ services:
     ports:
       - 80:80
       - 443:80
+    depends_on:
+      - streaming_preprocess
+      - streaming_postprocess
     networks:
       goodganglabs:
         ipv4_address: ${NGINX_HOST}
