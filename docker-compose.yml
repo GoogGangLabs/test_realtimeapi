@@ -10,8 +10,10 @@ services:
       - 3000
       - 4000
     depends_on:
-      - streaming_pipeline
-      - streaming_cache_store
+      streaming_pipeline:
+        condition: service_healthy
+      streaming_cache_store:
+        condition: service_started
     networks:
       goodganglabs:
         ipv4_address: ${PREPROCESS_HOST}
@@ -27,8 +29,10 @@ services:
     expose:
       - 5000
     depends_on:
-      - streaming_pipeline
-      - streaming_cache_store
+      streaming_pipeline:
+        condition: service_healthy
+      streaming_cache_store:
+        condition: service_started
     networks:
       goodganglabs:
         ipv4_address: ${POSTPROCESS_HOST}
@@ -42,7 +46,8 @@ services:
       context: streaming_deep_learning
     image: streaming_deep_learning
     depends_on:
-      - streaming_pipeline
+      streaming_pipeline:
+        condition: service_healthy
     networks:
       goodganglabs:
         ipv4_address: ${DEEP_LEARNING_HOST}
@@ -73,6 +78,11 @@ services:
         ipv4_address: ${RABBITMQ_HOST}
     env_file:
       - .env
+    healthcheck:
+        test: ["CMD", "curl", "-f", "http://localhost:15672"]
+        interval: 10s
+        timeout: 10s
+        retries: 5
     restart: always
 
   streaming_router:
