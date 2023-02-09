@@ -1,7 +1,7 @@
-#!/usr/sh
+#!/bin/sh
 
-HASHED_PASSWORD=$(python hashing.py)
+PASSWORD_HASH=$(python hashing.py)
 
-sed -i 's/\"PASSWORD\"/$HASHED_PASSWORD/g' /etc/rabbitmq/definitions.json
+sed -i "s|PASSWORD_HASH|$PASSWORD_HASH|g" /etc/rabbitmq/definitions.json
 
-rabbitmq-server
+rabbitmq-server 1> /dev/null
