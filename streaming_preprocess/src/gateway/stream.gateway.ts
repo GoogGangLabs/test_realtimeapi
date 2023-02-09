@@ -1,5 +1,6 @@
 import { Inject, CACHE_MANAGER } from '@nestjs/common';
-import { ClientProxy } from '@nestjs/microservices';
+import { AmqpConnection } from '@golevelup/nestjs-rabbitmq';
+import { ConfigService } from '@nestjs/config';
 import {
   ConnectedSocket,
   MessageBody,
@@ -20,10 +21,15 @@ class StreamGateway implements OnGatewayConnection, OnGatewayDisconnect {
   @WebSocketServer()
   private readonly server: Server;
 
+  private readonly channel: string;
+
   constructor(
-    @Inject('STREAM_SERVICE') private readonly redisClient: ClientProxy,
+    private readonly configService: ConfigService,
+    private readonly amqpConnection: AmqpConnection,
     @Inject(CACHE_MANAGER) private readonly cacheManager: Cache
-  ) {}
+  ) {
+    this.channel = this.configService.get('RABBITMQ_PRE_EXCHANGE');
+  }
 
   async handleConnection(client: ClientSocket) {
     const sessionId = client.handshake.headers['sessionid'] as string;
@@ -47,7 +53,7 @@ class StreamGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
   @SubscribeMessage('client:preprocess:stream')
   receiveStream(@ConnectedSocket() client: ClientSocket, @MessageBody('frame') frame: string) {
-    this.redisClient.emit('STREAM_PREPROCESS', PreStreamDto.fromData(client.sessionId, frame));
+    this.amqpConnection.publish(this.channel, '', PreStreamDto.fromData(client.sessionId, frame));
   }
 }
 
