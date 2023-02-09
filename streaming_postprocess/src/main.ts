@@ -1,30 +1,12 @@
-import { NestFactory } from '@nestjs/core';
-import { MicroserviceOptions, Transport } from '@nestjs/microservices';
-import { ConfigService } from '@nestjs/config';
+import { NestApplication, NestFactory } from '@nestjs/core';
 
 import AppModule from '@src/app.module';
 
 const bootstrap = async () => {
-  const app = await NestFactory.create(AppModule);
-  const configService = app.get(ConfigService);
-  const user = configService.get('RABBITMQ_USERNAME');
-  const password = configService.get('RABBITMQ_PASSWORD');
-  const host = configService.get('RABBITMQ_HOST');
-  const queueName = configService.get('RABBITMQ_QUEUE_NAME');
+  const app = await NestFactory.create<NestApplication>(AppModule);
+  const port = process.env.PORT || 3000;
 
-  app.connectMicroservice<MicroserviceOptions>({
-    transport: Transport.RMQ,
-    options: {
-      urls: [ `amqp://${user}:${password}@${host}` ],
-      queue: queueName,
-      queueOptions: {
-        durable: false
-      }
-    },
-  });
-
-  app.startAllMicroservices();
-
+  await app.listen(port);
   console.log(`=== ENV: ${process.env.NODE_ENV}`);
   console.log(`=== Service: Streaming Postprocess`);
 };

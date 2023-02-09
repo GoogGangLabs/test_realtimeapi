@@ -2,6 +2,7 @@ import { CACHE_MANAGER, Inject } from '@nestjs/common';
 import { Cache } from 'cache-manager';
 import { OnGatewayConnection, OnGatewayDisconnect, WebSocketGateway, WebSocketServer } from '@nestjs/websockets';
 import { Server } from 'socket.io';
+import { RabbitSubscribe } from '@golevelup/nestjs-rabbitmq';
 
 import ClientSocket from '@domain/client.socket';
 import PostStreamDto from '@domain/post.stream.dto';
@@ -32,6 +33,7 @@ class StreamGateway implements OnGatewayConnection, OnGatewayDisconnect {
     client.disconnect();
   }
 
+  @RabbitSubscribe({ queue: 'postprocess_queue' })
   sendStream(postStreamDto: PostStreamDto) {
     this.server.to(postStreamDto.sessionId).emit('server:postprocess:stream', postStreamDto.result);
   }

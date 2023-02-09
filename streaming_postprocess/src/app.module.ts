@@ -3,7 +3,6 @@ import { ConfigModule } from '@nestjs/config';
 import { path } from 'app-root-path';
 import * as redisStore from 'cache-manager-ioredis';
 
-import ControllerModule from '@controller/controller.module';
 import GatewayModule from '@gateway/gateway.module';
 
 @Module({
@@ -18,7 +17,6 @@ import GatewayModule from '@gateway/gateway.module';
       host: process.env.REDIS_HOST || 'localhost',
       port: process.env.REDIS_PORT || 6379,
     }),
-    ControllerModule,
     GatewayModule,
   ],
 })
