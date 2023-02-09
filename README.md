@@ -6,7 +6,7 @@
 
 > 저사양 서버 사용으로 인해 저해상도 영상으로 딥러닝 처리를 하여, 딥러닝 결과가 주변 환경에 영향을 많이 받는 점 참고해 주시면 감사합니다.
 
-### 데모 페이지 - [https://goodgnadlabs.xyz](https://goodganglabs.xyz)
+### (배포 임시 종료) ~~데모 페이지 - [https://goodgnadlabs.xyz](https://goodganglabs.xyz)~~
 
 ### API 명세 - [api.md](https://github.com/jcggl/test_realtimeapi/blob/main/documents/api.md)
 
