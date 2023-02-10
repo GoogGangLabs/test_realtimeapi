@@ -4,22 +4,44 @@ DOCKER_COMPOSE_YML  :=  docker-compose.yml
 DOCKER_COMPOSE_ENV  :=  .env
 DOCKER_COMPOSE      :=  @docker-compose -f $(DOCKER_COMPOSE_YML) --env-file=$(DOCKER_COMPOSE_ENV)
 
+CONTAINER_FLAG      :=  `make ps | wc -l`
+
 ### Common #########################################
 
-all: up
+all: stop
 
-detach:
-	$(DOCKER_COMPOSE) up --build --detach
+start:
+	@if [ $(CONTAINER_FLAG) > 1 ]; then \
+		# select yn
+	else \
+		$(DOCKER_COMPOSE) up --build --detach
+	fi
 
-up:
-	$(DOCKER_COMPOSE) up --build
+stop:
+	$(DOCKER_COMPOSE) stop
 
-down:
-	$(DOCKER_COMPOSE) down
+mycommand:
+	@if $(MAKE) -s restart ; then \
+    	     execute_your_command_here ; \
+	fi
+
+restart:
+	@if [ $(CONTAINER_FLAG) > 1 ]; then \
+		REPLY=""; \
+		read -p "Container is running, Continue process? [y/n] " -r; \
+		if [[ ! $$REPLY =~ ^[Yy]$$ ]]; then \
+			echo "NOooooo"; \
+			exit 1; \
+		else \
+			echo "Yessssss"; \
+		fi \
+	else \
+		echo 'none'; \
+	fi
 
 ### Clean ###########################################
 
-clean: down
+clean: stop
 	@(docker rm -f `docker ps -aq` || true) 2> /dev/null
 
 fclean: clean
@@ -30,7 +52,7 @@ prune: fclean
 
 ### Util ############################################
 
-log:
+logs:
 	$(DOCKER_COMPOSE) logs --follow --timestamps
 
 ps:
@@ -41,6 +63,6 @@ images:
 
 ### Phony ###########################################
 
-.PHONY: all build daemon stop
+.PHONY: all up down
 .PHONY: clean fclean prune
-.PHONY: log ps images
+.PHONY: logs ps images
