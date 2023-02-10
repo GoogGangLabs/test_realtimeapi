@@ -6,42 +6,45 @@ DOCKER_COMPOSE      :=  @docker-compose -f $(DOCKER_COMPOSE_YML) --env-file=$(DO
 
 CONTAINER_FLAG      :=  `make ps | wc -l`
 
+_SUCCESS            :=  "\033[32m[%s]\033[0m %s\n"
+_WARNING            :=  "\033[33m[%s]\033[0m %s\n"
+
+### Phony ###########################################
+
+.PHONY: all start up down
+.PHONY: clean fclean prune
+.PHONY: logs ps images
+
 ### Common #########################################
 
-all: stop
+all: up
 
 start:
-	@if [ $(CONTAINER_FLAG) > 1 ]; then \
-		# select yn
-	else \
-		$(DOCKER_COMPOSE) up --build --detach
-	fi
+	$(DOCKER_COMPOSE) up --build --detach
 
-stop:
-	$(DOCKER_COMPOSE) stop
-
-mycommand:
-	@if $(MAKE) -s restart ; then \
-    	     execute_your_command_here ; \
-	fi
-
-restart:
-	@if [ $(CONTAINER_FLAG) > 1 ]; then \
+up:
+	@if [ $(CONTAINER_FLAG) -gt 1 ]; then \
 		REPLY=""; \
-		read -p "Container is running, Continue process? [y/n] " -r; \
+		read -p "Containers is currently running. Continue process? [y/n] " -r; \
 		if [[ ! $$REPLY =~ ^[Yy]$$ ]]; then \
-			echo "NOooooo"; \
-			exit 1; \
+			printf $(_WARNING) "Make worker has down"; \
+			exit 0; \
 		else \
-			echo "Yessssss"; \
+			printf $(_SUCCESS) "Will be closed existing containers"; \
+			make down; \
+			printf $(_SUCCESS) "Will be started to build containers"; \
+			make start; \
 		fi \
 	else \
-		echo 'none'; \
+		make start; \
 	fi
+
+down:
+	$(DOCKER_COMPOSE) down
 
 ### Clean ###########################################
 
-clean: stop
+clean: down
 	@(docker rm -f `docker ps -aq` || true) 2> /dev/null
 
 fclean: clean
@@ -60,9 +63,3 @@ ps:
 
 images:
 	@docker images
-
-### Phony ###########################################
-
-.PHONY: all up down
-.PHONY: clean fclean prune
-.PHONY: logs ps images
