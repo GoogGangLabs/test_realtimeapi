@@ -2,8 +2,6 @@ from __future__ import print_function
 import base64
 import os
 import hashlib
-import struct
-import getpass
 
 password = os.environ.get('RABBITMQ_PASSWORD')
 salt = os.urandom(4)
