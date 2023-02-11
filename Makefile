@@ -17,7 +17,7 @@ _ERROR_LOG          :=  "\n$(_ERROR)[%s]$(_DEFAULT)\n"
 
 ### Phony ###########################################
 
-.PHONY: all up down
+.PHONY: all up down re
 .PHONY: clean fclean prune
 .PHONY: logs ps images
 
