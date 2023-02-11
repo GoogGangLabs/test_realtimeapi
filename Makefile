@@ -43,7 +43,7 @@ up:
 down:
 	make -- --stop;
 
-test:
+re:
 	@if [ $(CONTAINER_FLAG) -gt 1 ]; then \
 		SERVICES=`docker-compose ps --services`; \
 		SERVICE_COUNT=`echo $$SERVICES | tr " " "\n" | wc -l | sed 's/^ *//'`; \
