@@ -42,6 +42,7 @@ class StreamGateway implements OnGatewayConnection, OnGatewayDisconnect {
     }
 
     client.sessionId = sessionId;
+    client.sequence = 0;
     client.join(client.sessionId);
     client.emit('server:preprocess:connection');
   }
@@ -53,7 +54,7 @@ class StreamGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
   @SubscribeMessage('client:preprocess:stream')
   receiveStream(@ConnectedSocket() client: ClientSocket, @MessageBody('frame') frame: string) {
-    this.amqpConnection.publish(this.channel, '', PreStreamDto.fromData(client.sessionId, frame));
+    this.amqpConnection.publish(this.channel, '', PreStreamDto.fromData(client.sessionId, client.sequence++, frame));
   }
 }
 
