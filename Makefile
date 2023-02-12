@@ -4,7 +4,7 @@ DOCKER_COMPOSE_YML  :=  docker-compose.yml
 DOCKER_COMPOSE_ENV  :=  .env
 DOCKER_COMPOSE      :=  @docker-compose -f $(DOCKER_COMPOSE_YML) --env-file=$(DOCKER_COMPOSE_ENV)
 
-CONTAINER_FLAG      :=  `make ps | wc -l`
+CONTAINER_FLAG      :=  `docker-compose -f $(DOCKER_COMPOSE_YML) ps | wc -l`
 
 _SUCCESS            :=  "\\033[32m"
 _WARNING            :=  "\\033[33m"
@@ -20,6 +20,7 @@ _ERROR_LOG          :=  "\n$(_ERROR)[%s]$(_DEFAULT)\n"
 .PHONY: all up down re
 .PHONY: clean fclean prune
 .PHONY: logs ps images
+.PHONY: --start --stop --reboot --last-comment
 
 ### Common #########################################
 
@@ -45,12 +46,12 @@ down:
 
 re:
 	@if [ $(CONTAINER_FLAG) -gt 1 ]; then \
-		SERVICES=`docker-compose ps --services`; \
+		SERVICES=`docker-compose -f $(DOCKER_COMPOSE_YML) ps --services`; \
 		SERVICE_COUNT=`echo $$SERVICES | tr " " "\n" | wc -l | sed 's/^ *//'`; \
 		SERVICE_INDEX=1; \
 		REPLY=""; \
 		\
-		printf $(_SUCCESS_LOG) "Container list"; \
+		printf $(_SUCCESS_LOG) "List of currently running containers"; \
 		printf "\033[1;33m  0 - All (Press 0 or only enter)\033[0m\n"; \
 		for SERVICE in $$SERVICES; \
 		do \
@@ -96,7 +97,7 @@ re:
 		if [ "$$RESTART_CONTAINERS" == "" ]; then \
 			make -- --reboot; \
 		else \
-			make -- --restart SERVICES="$$RESTART_CONTAINERS"; \
+			make -- --start SERVICES="$$RESTART_CONTAINERS"; \
 		fi; \
 	else \
 		make -- --start; \
@@ -120,34 +121,25 @@ logs:
 	$(DOCKER_COMPOSE) logs --follow --timestamps
 
 ps:
-	@docker ps
+	$(DOCKER_COMPOSE) ps
 
 images:
-	@docker images
+	$(DOCKER_COMPOSE) images
 
 ### Private Target ##################################
 
 --start:
-	$(DOCKER_COMPOSE) up --build --detach; \
-	make -- --last-comment;
-
---stop:
-	$(DOCKER_COMPOSE) down; \
-	make -- --last-comment;
-
---restart:
-	@printf $(_SUCCESS_LOG) "Will be started to build containers"; \
-	printf "\n";
+	@printf $(_SUCCESS_LOG) "Will be started to build containers";
 	$(DOCKER_COMPOSE) up --build --detach $$SERVICES; \
 	make -- --last-comment;
 
+--stop:
+	@printf $(_SUCCESS_LOG) "Will be closed existing containers";
+	$(DOCKER_COMPOSE) down; \
+	make -- --last-comment;
+
 --reboot:
-	@printf $(_SUCCESS_LOG) "Will be closed existing containers"; \
-	printf "\n"; \
-	make -- --stop; \
-	printf $(_SUCCESS_LOG) "Will be started to build containers"; \
-	printf "\n"; \
-	make -- --start; \
+	@make -- --stop && make -- --start;
 
 --last-comment:
 	@printf $(_SUCCESS_LOG) "Process done"; \
