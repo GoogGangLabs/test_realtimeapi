@@ -1,67 +1,25 @@
-class BufferQueue {
-  _list = [];
-
-  push(buffer) {
-    this._list.push(buffer);
-  }
-
-  pop() {
-    return this._list.shift();
-  }
-}
+import { connectStreamPreProcess } from './socket.js';
+import { socketHost, socketPath, camera } from './context.js';
 
 let flag = false;
-const bufferQueue = new BufferQueue();
-
-const loopVideoFrame = () => {
-  const inputVideo = document.getElementById('input-video');
-  const bufferCanvas = document.getElementById('buffer-canvas');
-
-  const loopInterval = setInterval(() => {
-    if (!flag) clearInterval(loopInterval);
-
-    bufferCanvas.getContext('2d').drawImage(inputVideo, 0, 0, bufferCanvas.width, bufferCanvas.height);
-    const frame = bufferCanvas.toDataURL('image/jpeg', 1).split(',')[1];
-
-    if (frame.length === 1392) return;
-
-    bufferQueue.push(frame);
-    socket.preProcess.emit('client:preprocess:stream', { frame });
-  }, 100);
-};
 
 const loadVideo = async () => {
   if (flag) return;
 
   flag = true;
 
-  await navigator.mediaDevices
-    .getUserMedia({ video: true })
-    .then((media) => {
-      const inputVideo = document.getElementById('input-video');
-
-      inputVideo.srcObject = media;
-      inputVideo.play();
-    })
-    .catch(() => stopVideo());
-
-  loopVideoFrame();
+  camera.start();
 };
 
 const stopVideo = () => {
-  const inputVideo = document.getElementById('input-video');
-
   if (!flag) return;
 
-  if (inputVideo.srcObject) {
-    inputVideo.srcObject.getTracks()[0].stop();
-    inputVideo.srcObject = null;
-  }
-
   flag = false;
+
+  camera.stop();
 };
 
-const initialHostSetting = async (environment) => {
+export const initialHostSetting = async (environment) => {
   const host = `${window.location.protocol}//${window.location.host.split(':')[0]}`;
 
   await axios.get(`${environment === 'prod' ? host : `${host}:3000`}/auth/code`).catch((error) => {
@@ -75,3 +33,6 @@ const initialHostSetting = async (environment) => {
 
   connectStreamPreProcess();
 };
+
+document.getElementById('button-start').addEventListener('click', loadVideo);
+document.getElementById('button-stop').addEventListener('click', stopVideo);
