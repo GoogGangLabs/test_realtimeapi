@@ -29,7 +29,7 @@ def subscribe(_, __, ___, body):
 async def publish(message):
   data = eval(message)
   result = holistic.process(data['frame'])
-  dict = { 'sessionId': data['sessionId'], 'result': result }
+  dict = { 'sessionId': data['sessionId'], 'sequence': data['sequence'], 'result': result }
   channel.basic_publish(exchange=PUB_EXCHANGE, routing_key='', body=json.dumps(dict).encode())
 
 if __name__ == '__main__':
