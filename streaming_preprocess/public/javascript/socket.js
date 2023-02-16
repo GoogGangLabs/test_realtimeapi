@@ -1,31 +1,4 @@
-const socketHost = {
-  preprocess: undefined,
-  postprocess: undefined,
-};
-const socketPath = {
-  preprocess: undefined,
-  postprocess: undefined,
-};
-const socket = {
-  preProcess: undefined,
-  postProcess: undefined,
-};
-const sessionId = document.cookie
-  ? document.cookie
-      .split('; ')
-      .find((elem) => elem.includes('sessionId'))
-      .split('=')[1]
-  : '';
-
-const connectStreamPreProcess = () => {
-  socket.preProcess = io(socketHost.preprocess, { path: socketPath.preprocess, extraHeaders: { sessionId } });
-  streamPreProcessOn();
-};
-
-const connectStreamPostProcess = () => {
-  socket.postProcess = io(socketHost.postprocess, { path: socketPath.postprocess, extraHeaders: { sessionId } });
-  streamPostProcessOn();
-};
+import { socket, socketPath, socketHost, bufferQueue, sessionId } from './context.js';
 
 const streamPreProcessOn = () => {
   socket.preProcess.on('server:preprocess:connection', () => {
@@ -50,8 +23,9 @@ const streamPostProcessOn = () => {
     alert(message);
   });
 
-  socket.postProcess.on('server:postprocess:stream', (results) => {
-    const base64Data = bufferQueue.pop();
+  socket.postProcess.on('server:postprocess:stream', (data) => {
+    const base64Data = bufferQueue.pop(data.sequence);
+    const results = data.results;
 
     image.onload = () => {
       changedContext.save();
@@ -89,4 +63,14 @@ const streamPostProcessOn = () => {
     };
     image.src = 'data:image/jpeg;base64,' + base64Data;
   });
+};
+
+const connectStreamPostProcess = () => {
+  socket.postProcess = io(socketHost.postprocess, { path: socketPath.postprocess, extraHeaders: { sessionId } });
+  streamPostProcessOn();
+};
+
+export const connectStreamPreProcess = () => {
+  socket.preProcess = io(socketHost.preprocess, { path: socketPath.preprocess, extraHeaders: { sessionId } });
+  streamPreProcessOn();
 };
