@@ -24,7 +24,7 @@ const streamPostProcessOn = () => {
   });
 
   socket.postProcess.on('server:postprocess:stream', (data) => {
-    const base64Data = bufferQueue.pop(data.sequence);
+    const base64Data = bufferQueue.pop(data.sequence, data.fps);
     const results = data.results;
 
     image.onload = () => {
@@ -34,30 +34,30 @@ const streamPostProcessOn = () => {
 
       changedContext.globalCompositeOperation = 'source-over';
 
-      if (results.pose.length > 0) {
-        for (let i = 0; i < 23; i++) {
-          if (i > 10 && i < 17) continue;
-          results.pose[i] = [0, 0, 0, 0];
-        }
-      }
+      // if (results.pose.length > 0) {
+      //   for (let i = 0; i < 23; i++) {
+      //     if (i > 10 && i < 17) continue;
+      //     results.pose[i] = [0, 0, 0, 0];
+      //   }
+      // }
 
-      /* Face */
-      drawConnectors(changedContext, results.face, FACEMESH_TESSELATION, { color: '#C0C0C070', lineWidth: 1 });
-      drawConnectors(changedContext, results.face, FACEMESH_RIGHT_EYE, { color: 'rgb(0,217,231)', lineWidth: 1 });
-      drawConnectors(changedContext, results.face, FACEMESH_RIGHT_EYEBROW, { color: 'rgb(0,217,231)', lineWidth: 1 });
-      drawConnectors(changedContext, results.face, FACEMESH_LEFT_EYE, { color: 'rgb(255,138,0)', lineWidth: 1 });
-      drawConnectors(changedContext, results.face, FACEMESH_LEFT_EYEBROW, { color: 'rgb(255,138,0)', lineWidth: 1 });
-      drawConnectors(changedContext, results.face, FACEMESH_FACE_OVAL, { color: '#E0E0E0', lineWidth: 1 });
-      drawConnectors(changedContext, results.face, FACEMESH_LIPS, { color: '#E0E0E0', lineWidth: 1 });
+      // /* Face */
+      // drawConnectors(changedContext, results.face, FACEMESH_TESSELATION, { color: '#C0C0C070', lineWidth: 1 });
+      // drawConnectors(changedContext, results.face, FACEMESH_RIGHT_EYE, { color: 'rgb(0,217,231)', lineWidth: 1 });
+      // drawConnectors(changedContext, results.face, FACEMESH_RIGHT_EYEBROW, { color: 'rgb(0,217,231)', lineWidth: 1 });
+      // drawConnectors(changedContext, results.face, FACEMESH_LEFT_EYE, { color: 'rgb(255,138,0)', lineWidth: 1 });
+      // drawConnectors(changedContext, results.face, FACEMESH_LEFT_EYEBROW, { color: 'rgb(255,138,0)', lineWidth: 1 });
+      // drawConnectors(changedContext, results.face, FACEMESH_FACE_OVAL, { color: '#E0E0E0', lineWidth: 1 });
+      // drawConnectors(changedContext, results.face, FACEMESH_LIPS, { color: '#E0E0E0', lineWidth: 1 });
 
-      /* Pose */
-      drawConnectors(changedContext, results.pose, POSE_CONNECTIONS, { color: 'white', lineWidth: 2 });
+      // /* Pose */
+      // drawConnectors(changedContext, results.pose, POSE_CONNECTIONS, { color: 'white', lineWidth: 2 });
 
-      /* Left Hand */
-      drawConnectors(changedContext, results.left_hand, HAND_CONNECTIONS, { color: 'rgb(255,138,0)', lineWidth: 1.5 });
+      // /* Left Hand */
+      // drawConnectors(changedContext, results.left_hand, HAND_CONNECTIONS, { color: 'rgb(255,138,0)', lineWidth: 1.5 });
 
-      /* Right Hand */
-      drawConnectors(changedContext, results.right_hand, HAND_CONNECTIONS, { color: 'rgb(0,217,231)', lineWidth: 2 });
+      // /* Right Hand */
+      // drawConnectors(changedContext, results.right_hand, HAND_CONNECTIONS, { color: 'rgb(0,217,231)', lineWidth: 2 });
 
       changedContext.restore();
     };

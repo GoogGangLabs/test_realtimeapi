@@ -5,9 +5,9 @@ class BufferQueue {
     this._list.push([buffer, Date.now()]);
   }
 
-  pop(sequence) {
+  pop(sequence, fps) {
     const [buffer, start] = this._list.shift();
-    console.log(`${sequence} - ${Date.now() - start}ms`);
+    console.log(`${sequence}: ${fps}fps, ${Date.now() - start}ms`);
     return buffer;
   }
 }

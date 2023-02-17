@@ -6,11 +6,13 @@ import { RabbitSubscribe } from '@golevelup/nestjs-rabbitmq';
 
 import ClientSocket from '@domain/client.socket';
 import PostStreamDto from '@domain/post.stream.dto';
+import FrameManager from '@domain/frame.manager';
 
 @WebSocketGateway(5000, { cors: { origin: '*', credentials: true } })
 class StreamGateway implements OnGatewayConnection, OnGatewayDisconnect {
   @WebSocketServer()
   private readonly server: Server;
+  private frameManager = new FrameManager();
 
   constructor(@Inject(CACHE_MANAGER) private readonly cacheManager: Cache) {}
 
@@ -35,7 +37,8 @@ class StreamGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
   @RabbitSubscribe({ queue: 'postprocess_queue' })
   sendStream(postStreamDto: PostStreamDto) {
-    this.server.to(postStreamDto.sessionId).emit('server:postprocess:stream', { sequence: postStreamDto.sequence, results: postStreamDto.result });
+    const fps = this.frameManager.calculateFrame();
+    this.server.to(postStreamDto.sessionId).emit('server:postprocess:stream', { sequence: postStreamDto.sequence, results: postStreamDto.result, fps: fps });
   }
 }
 
