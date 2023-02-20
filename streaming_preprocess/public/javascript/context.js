@@ -38,9 +38,10 @@ const sessionId = document.cookie
 const videoElement = document.getElementById('input-video');
 const changedCanvas = document.getElementById('changed-canvas');
 const originCanvas = document.getElementById('origin-canvas');
+const bufferCanvas = document.getElementById('buffer-canvas');
 const changedContext = changedCanvas.getContext('2d');
 const originContext = originCanvas.getContext('2d');
-const bufferCanvas = document.getElementById('buffer-canvas');
+const bufferContext = bufferCanvas.getContext('2d');
 changedCanvas.width = 640;
 changedCanvas.height = 480;
 bufferCanvas.width = 640;
@@ -77,4 +78,4 @@ const camera = new Camera(videoElement, {
 
 export { socketHost, socketPath, socket, bufferQueue, sessionId };
 export { videoElement, changedCanvas, originCanvas, bufferCanvas };
-export { camera, changedContext, originContext };
+export { camera, changedContext, originContext, bufferContext };
