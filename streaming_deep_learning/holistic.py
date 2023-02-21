@@ -2,6 +2,7 @@ import cv2
 import numpy
 import mediapipe as mp
 import base64
+import time
 
 mp_holistic = mp.solutions.holistic
 holistic = mp_holistic.Holistic(static_image_mode=True)
@@ -25,11 +26,13 @@ def get_landmark_list(landmarks):
 
   return landmark_list
 
-def process(base64Data):
+def process(sequence, buffer):
   buffer = base64.b64decode(base64Data)
   np_data = numpy.frombuffer(buffer, numpy.uint8)
   image = cv2.imdecode(np_data, cv2.IMREAD_UNCHANGED)
+  start = time.time()
   results = holistic.process(image[..., ::-1])
+  print(f"{sequence} - {(time.time() - start) * 1000}ms")
 
   return {
     'left_hand': get_landmark_list(results.left_hand_landmarks),

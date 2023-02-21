@@ -16,4 +16,4 @@ RUN pip3 install -r requirements.txt
 
 COPY main.py holistic.py ./
 
-ENTRYPOINT [ "python3", "main.py" ]
+ENTRYPOINT [ "python3", "-u", "main.py" ]
