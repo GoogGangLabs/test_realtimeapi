@@ -17,16 +17,16 @@ class StreamGateway implements OnGatewayConnection, OnGatewayDisconnect {
   constructor(@Inject(CACHE_MANAGER) private readonly cacheManager: Cache) {}
 
   async handleConnection(client: ClientSocket) {
-    const sessionId = client.handshake.headers['sessionid'] as string;
-    const sessionValue = await this.cacheManager.get(sessionId);
+    // const sessionId = client.handshake.headers['sessionid'] as string;
+    // const sessionValue = await this.cacheManager.get(sessionId);
 
-    if (!sessionId || !sessionValue) {
-      client.emit('server:postprocess:error', '인증정보가 유효하지 않습니다.');
-      await this.handleDisconnect(client);
-      return;
-    }
+    // if (!sessionId || !sessionValue) {
+    //   client.emit('server:postprocess:error', '인증정보가 유효하지 않습니다.');
+    //   await this.handleDisconnect(client);
+    //   return;
+    // }
 
-    client.sessionId = sessionId;
+    client.sessionId = '123';
     client.join(client.sessionId);
   }
 
