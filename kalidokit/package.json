@@ -23,7 +23,6 @@
         "jest:watch": "jest -o --watch "
     },
     "devDependencies": {
-        "@types/jest": "^27.0.3",
         "@types/lodash.clonedeep": "^4.5.6",
         "@typescript-eslint/eslint-plugin": "^5.9.0",
         "@typescript-eslint/parser": "^5.9.0",
@@ -32,7 +31,6 @@
         "prettier": "^2.4.1",
         "rimraf": "^3.0.2",
         "rollup-plugin-friendly-type-imports": "^1.0.1",
-        "ts-jest": "^27.1.1",
         "tsc-watch": "^4.5.0",
         "typescript": "^4.4.4",
         "vite": "2.7.1",
