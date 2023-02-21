@@ -1,7 +1,7 @@
 import os
 import json
 import asyncio
-import pika
+import aio_pika
 
 import holistic
 
@@ -13,24 +13,29 @@ port = os.environ.get('RABBITMQ_PORT')
 username = os.environ.get('RABBITMQ_USERNAME')
 password = os.environ.get('RABBITMQ_PASSWORD')
 
-credentials = pika.PlainCredentials(username=username, password=password)
-connection = pika.BlockingConnection(pika.ConnectionParameters(host=host, port=port, credentials=credentials))
-channel = connection.channel()
+async def pipeline(loop):
+  connection = await aio_pika.connect_robust(
+    host=host,
+    port=port,
+    login=username,
+    password=password,
+    loop=loop
+  )
+  channel = await connection.channel()
+  await channel.set_qos(prefetch_count=1)
 
-def pipeline():
-  channel.queue_declare(queue=SUB_QUEUE, durable=True, auto_delete=False)
-  channel.exchange_declare(exchange=PUB_EXCHANGE, exchange_type='fanout', durable=True, auto_delete=False)
-  channel.basic_consume(queue=SUB_QUEUE, on_message_callback=subscribe, auto_ack=True)
-  channel.start_consuming()
+  queue = await channel.declare_queue(SUB_QUEUE, durable=True)
+  exchange = await channel.declare_exchange(PUB_EXCHANGE, type=aio_pika.ExchangeType.FANOUT, durable=True)
 
-def subscribe(_, __, ___, body):
-  asyncio.run(publish(body))
-
-async def publish(message):
-  data = eval(message)
-  result = holistic.process(data['frame'])
-  dict = { 'sessionId': data['sessionId'], 'sequence': data['sequence'], 'result': result }
-  channel.basic_publish(exchange=PUB_EXCHANGE, routing_key='', body=json.dumps(dict).encode())
+  async with queue.iterator() as queue_iter:
+    async for message in queue_iter:
+      async with message.process():
+        data = json.loads(message.body.decode())
+        result = holistic.process(data['sequence'], data['frame'])
+        dict = { 'sessionId': data['sessionId'], 'sequence': data['sequence'], 'result': result }
+        await exchange.publish(aio_pika.Message(json.dumps(dict).encode()), routing_key='')
 
 if __name__ == '__main__':
-  pipeline()
+  loop = asyncio.get_event_loop()
+  loop.create_task(pipeline(loop))
+  loop.run_forever()
