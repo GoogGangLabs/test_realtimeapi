@@ -148,14 +148,14 @@ const animateVRM = (vrm, results) => {
     // Take the results from `Holistic` and animate character based on its Face, Pose, and Hand Keypoints.
     let riggedPose, riggedLeftHand, riggedRightHand, riggedFace;
 
-    const faceLandmarks = results.faceLandmarks;
+    const faceLandmarks = results.face.length ? results.face : undefined;
     // Pose 3D Landmarks are with respect to Hip distance in meters
-    const pose3DLandmarks = results.ea;
+    const pose3DLandmarks = undefined;
     // Pose 2D landmarks are with respect to videoWidth and videoHeight
-    const pose2DLandmarks = results.poseLandmarks;
+    const pose2DLandmarks = results.pose.length ? results.pose : undefined;
     // Be careful, hand landmarks may be reversed
-    const leftHandLandmarks = results.rightHandLandmarks;
-    const rightHandLandmarks = results.leftHandLandmarks;
+    const leftHandLandmarks = results.right_hand.length ? results.right_hand : undefined;
+    const rightHandLandmarks = results.left_hand.length ? results.left_hand : undefined;
 
     // Animate Face
     if (faceLandmarks) {
@@ -260,38 +260,38 @@ const drawResults = (results) => {
     canvasCtx.save();
     canvasCtx.clearRect(0, 0, guideCanvas.width, guideCanvas.height);
     // Use `Mediapipe` drawing functions
-    drawConnectors(canvasCtx, results.poseLandmarks, POSE_CONNECTIONS, {
+    drawConnectors(canvasCtx, results.pose, POSE_CONNECTIONS, {
         color: "#00cff7",
         lineWidth: 4,
     });
-    drawLandmarks(canvasCtx, results.poseLandmarks, {
+    drawLandmarks(canvasCtx, results.pose, {
         color: "#ff0364",
         lineWidth: 2,
     });
-    drawConnectors(canvasCtx, results.faceLandmarks, FACEMESH_TESSELATION, {
+    drawConnectors(canvasCtx, results.face, FACEMESH_TESSELATION, {
         color: "#C0C0C070",
         lineWidth: 1,
     });
-    if (results.faceLandmarks && results.faceLandmarks.length === 478) {
+    if (results.face && results.face.length === 478) {
         //draw pupils
-        drawLandmarks(canvasCtx, [results.faceLandmarks[468], results.faceLandmarks[468 + 5]], {
+        drawLandmarks(canvasCtx, [results.face[468], results.face[468 + 5]], {
             color: "#ffe603",
             lineWidth: 2,
         });
     }
-    drawConnectors(canvasCtx, results.leftHandLandmarks, HAND_CONNECTIONS, {
+    drawConnectors(canvasCtx, results.left_hand, HAND_CONNECTIONS, {
         color: "#eb1064",
         lineWidth: 5,
     });
-    drawLandmarks(canvasCtx, results.leftHandLandmarks, {
+    drawLandmarks(canvasCtx, results.left_hand, {
         color: "#00cff7",
         lineWidth: 2,
     });
-    drawConnectors(canvasCtx, results.rightHandLandmarks, HAND_CONNECTIONS, {
+    drawConnectors(canvasCtx, results.right_hand, HAND_CONNECTIONS, {
         color: "#22c3e3",
         lineWidth: 5,
     });
-    drawLandmarks(canvasCtx, results.rightHandLandmarks, {
+    drawLandmarks(canvasCtx, results.right_hand, {
         color: "#ff0364",
         lineWidth: 2,
     });
@@ -316,15 +316,14 @@ const handleFrame = () => {
     if (!flag) return;
   
     bufferContext.drawImage(videoElement, 0, 0, bufferCanvas.width, bufferCanvas.height);
-    const base64 = bufferCanvas.toDataURL('image/jpeg', 1).split(',')[1]
+    // const base64 = bufferCanvas.toDataURL('image/jpeg', 0.3).split(',')[1]
 
-    socket.preProcess.emit('client:preprocess:stream', { frame: base64 });
-    // bufferCanvas.toBlob(async (blob) => {
-    //   if (blob.size <= 100000) return;
-    //   const image = await blob.arrayBuffer();
-    //   const base64 = image.toString('base64');
-    //   console.log(base64)
-    // }, 'image/png', 1);
+    bufferCanvas.toBlob(async (blob) => {
+        if (blob.size <= 100000) return;
+        // const image = await blob.arrayBuffer();
+        //   const base64 = image.toString('base64');
+        socket.preProcess.emit('client:preprocess:stream', { frame: blob });
+    }, 'image/png', 1);
   
   }
 
