@@ -1,12 +1,13 @@
 import { NestFactory } from '@nestjs/core';
 import { ValidationPipe } from '@nestjs/common';
 import { NestExpressApplication } from '@nestjs/platform-express';
-import { MicroserviceOptions } from '@nestjs/microservices';
+import { MicroserviceOptions, Transport } from '@nestjs/microservices';
 import { path } from 'app-root-path';
 import * as cookieParser from 'cookie-parser';
 
 import AppModule from '@src/app.module';
-import grpcClientOption from '@domain/grpc.option';
+import { join } from 'path';
+import { ServerCredentials } from '@grpc/grpc-js';
 
 const bootstrap = async () => {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
@@ -17,7 +18,14 @@ const bootstrap = async () => {
   app.useStaticAssets(`${path}/public`);
   app.setBaseViewsDir(`${path}/public`);
   app.setViewEngine('ejs');
-  app.connectMicroservice<MicroserviceOptions>(grpcClientOption);
+  app.connectMicroservice<MicroserviceOptions>({
+    transport: Transport.GRPC,
+    options: {
+      package: 'inference',
+      credentials: ServerCredentials.createInsecure(),
+      protoPath: join(__dirname, '../inference.proto'),
+    },
+  });
 
   await app.startAllMicroservices();
   await app.listen(port, () => {

@@ -13,12 +13,12 @@ import grpc
 import inference_pb2
 import inference_pb2_grpc
 
-PUB_EXCHANGE = 'postprocess_exchange'
+PUB_EXCHANGE = os.environ.get('RABBITMQ_POST_EXCHANGE')
 
-host = 'localhost'
-port = 5672
-username = 'ggl'
-password = 'goodganglabs1234'
+host = os.environ.get('RABBITMQ_HOST')
+port = os.environ.get('RABBITMQ_PORT')
+username = os.environ.get('RABBITMQ_USERNAME')
+password = os.environ.get('RABBITMQ_PASSWORD')
 
 credentials = pika.PlainCredentials(username=username, password=password)
 connection = pika.BlockingConnection(pika.ConnectionParameters(host=host, port=port, credentials=credentials))

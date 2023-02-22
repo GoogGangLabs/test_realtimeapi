@@ -6,7 +6,6 @@ import * as redisStore from 'cache-manager-ioredis';
 import StreamGateway from '@gateway/stream.gateway';
 import { ClientsModule, Transport } from '@nestjs/microservices';
 import { join } from 'path';
-import grpcClientOption from '@domain/grpc.option';
 
 @Module({
   imports: [
@@ -24,7 +23,11 @@ import grpcClientOption from '@domain/grpc.option';
     ClientsModule.register([
       {
         name: 'INFERENCE_PACKAGE',
-        ...grpcClientOption
+        transport: Transport.GRPC,
+        options: {
+          package: 'inference',
+          protoPath: join(__dirname, "../../inference.proto")
+        }
       }
     ]),
     CacheModule.registerAsync({

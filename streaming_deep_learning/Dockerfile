@@ -1,8 +1,5 @@
 FROM ubuntu:22.04
 
-ENV REDIS_HOST ${REDIS_HOST} \
-    REDIS_PORT ${REDIS_PORT}
-
 RUN mkdir -p /usr/local/app
 WORKDIR /usr/local/app
 
@@ -11,9 +8,12 @@ RUN apt update && apt install -y --no-install-recommends \
         python3-pip \
         python3-opencv
 
-COPY requirements.txt ./
+RUN python3 -m pip install grpcio-tools
+
+COPY ./grpc/requirements.txt ./
 RUN pip3 install -r requirements.txt
 
-COPY main.py holistic.py ./
+COPY ./grpc/main.py ./grpc/inference.proto ./
+RUN python3 -m grpc_tools.protoc -I. --python_out=. --grpc_python_out=. ./inference.proto
 
 ENTRYPOINT [ "python3", "-u", "main.py" ]
