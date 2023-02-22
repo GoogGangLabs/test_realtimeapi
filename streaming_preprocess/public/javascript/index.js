@@ -53,7 +53,6 @@ const stopVideo = () => {
 
   flag = false;
 
-  // camera.stop();
   videoElement.srcObject = null;
   const host = `${window.location.protocol}//${window.location.host.split(':')[0]}`;
   const calculateLatency = (name, list) => {
@@ -62,6 +61,9 @@ const stopVideo = () => {
     const avg = (list.reduce((a, b) => a + b, 0) / list.length).toFixed(2);
     return `[${name}] - 최소: ${min}ms, 최대: ${max}ms, 평균: ${avg}ms`;
   }
+
+  if (!videoInfo.fps.length) return;
+
   axios.post(`${host}/auth/slack`, {
     text: `Latency 테스트 - ${videoInfo.startedAt}\n총 테스트 시간 - ${(new Date().getTime() - videoInfo.startedAt.getTime()) / 1000}초\n처리된 Frame 개수 - ${videoInfo.sequence}\nFPS - 최소: ${Math.min(...videoInfo.fps)}, 최대: ${Math.max(...videoInfo.fps)}, 평균: ${(videoInfo.fps.reduce((a, b) => a + b, 0) / videoInfo.fps.length).toFixed(2)}\n\n\n${calculateLatency("Client -> Input Server", videoInfo.latency.input)}\n${calculateLatency("Input Server -> Inference Server", videoInfo.latency.messageQueue)}\n${calculateLatency("Inference Processing", videoInfo.latency.inference)}\n${calculateLatency("Inference Server -> Output Server", videoInfo.latency.output)}\n${calculateLatency("Output Server -> Client", videoInfo.latency.client)}\n\n==========================================\n\n`
   })

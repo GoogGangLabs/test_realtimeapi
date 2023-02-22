@@ -13,6 +13,4 @@ RUN yarn
 COPY . .
 RUN yarn build
 
-RUN echo "REDIS_HOST=${REDIS_HOST}\nREDIS_PORT=${REDIS_PORT}" > .env.prod
-
 ENTRYPOINT [ "yarn", "deploy" ]

@@ -17,6 +17,8 @@ services:
     networks:
       goodganglabs:
         ipv4_address: ${PREPROCESS_HOST}
+    volumes:
+      - ./grpc:/usr/local/grpc
     env_file:
       - .env
     restart: always
@@ -40,80 +42,80 @@ services:
       - .env
     restart: always
 
-  streaming_deep_learning1:
-    container_name: streaming_deep_learning1
-    build:
-      context: streaming_deep_learning
-    image: streaming_deep_learning1
-    depends_on:
-      streaming_pipeline:
-        condition: service_healthy
-    networks:
-      goodganglabs:
-        ipv4_address: 172.20.0.7
-    env_file:
-      - .env
-    restart: always
+  # streaming_deep_learning1:
+  #   container_name: streaming_deep_learning1
+  #   build:
+  #     context: streaming_deep_learning
+  #   image: streaming_deep_learning1
+  #   depends_on:
+  #     streaming_pipeline:
+  #       condition: service_healthy
+  #   networks:
+  #     goodganglabs:
+  #       ipv4_address: 172.20.0.7
+  #   env_file:
+  #     - .env
+  #   restart: always
 
-  streaming_deep_learning2:
-    container_name: streaming_deep_learning2
-    build:
-      context: streaming_deep_learning
-    image: streaming_deep_learning2
-    depends_on:
-      streaming_pipeline:
-        condition: service_healthy
-    networks:
-      goodganglabs:
-        ipv4_address: 172.20.0.8
-    env_file:
-      - .env
-    restart: always
+  # streaming_deep_learning2:
+  #   container_name: streaming_deep_learning2
+  #   build:
+  #     context: streaming_deep_learning
+  #   image: streaming_deep_learning2
+  #   depends_on:
+  #     streaming_pipeline:
+  #       condition: service_healthy
+  #   networks:
+  #     goodganglabs:
+  #       ipv4_address: 172.20.0.8
+  #   env_file:
+  #     - .env
+  #   restart: always
 
-  streaming_deep_learning3:
-    container_name: streaming_deep_learning3
-    build:
-      context: streaming_deep_learning
-    image: streaming_deep_learning3
-    depends_on:
-      streaming_pipeline:
-        condition: service_healthy
-    networks:
-      goodganglabs:
-        ipv4_address: 172.20.0.9
-    env_file:
-      - .env
-    restart: always
+  # streaming_deep_learning3:
+  #   container_name: streaming_deep_learning3
+  #   build:
+  #     context: streaming_deep_learning
+  #   image: streaming_deep_learning3
+  #   depends_on:
+  #     streaming_pipeline:
+  #       condition: service_healthy
+  #   networks:
+  #     goodganglabs:
+  #       ipv4_address: 172.20.0.9
+  #   env_file:
+  #     - .env
+  #   restart: always
 
-  streaming_deep_learning4:
-    container_name: streaming_deep_learning4
-    build:
-      context: streaming_deep_learning
-    image: streaming_deep_learning4
-    depends_on:
-      streaming_pipeline:
-        condition: service_healthy
-    networks:
-      goodganglabs:
-        ipv4_address: 172.20.0.10
-    env_file:
-      - .env
-    restart: always
+  # streaming_deep_learning4:
+  #   container_name: streaming_deep_learning4
+  #   build:
+  #     context: streaming_deep_learning
+  #   image: streaming_deep_learning4
+  #   depends_on:
+  #     streaming_pipeline:
+  #       condition: service_healthy
+  #   networks:
+  #     goodganglabs:
+  #       ipv4_address: 172.20.0.10
+  #   env_file:
+  #     - .env
+  #   restart: always
 
-  streaming_deep_learning5:
-    container_name: streaming_deep_learning5
-    build:
-      context: streaming_deep_learning
-    image: streaming_deep_learning5
-    depends_on:
-      streaming_pipeline:
-        condition: service_healthy
-    networks:
-      goodganglabs:
-        ipv4_address: 172.20.0.11
-    env_file:
-      - .env
-    restart: always
+  # streaming_deep_learning5:
+  #   container_name: streaming_deep_learning5
+  #   build:
+  #     context: streaming_deep_learning
+  #   image: streaming_deep_learning5
+  #   depends_on:
+  #     streaming_pipeline:
+  #       condition: service_healthy
+  #   networks:
+  #     goodganglabs:
+  #       ipv4_address: 172.20.0.11
+  #   env_file:
+  #     - .env
+  #   restart: always
 
   streaming_cache_store:
     container_name: streaming_cache_store
