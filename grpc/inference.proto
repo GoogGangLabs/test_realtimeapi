@@ -1,0 +1,18 @@
+syntax = "proto3";
+
+package inference;
+
+service Inference {
+  rpc InputStream (StreamRequest) returns (InferenceResponse) {}
+}
+
+message StreamRequest {
+  string sessionId = 1;
+  int32 sequence = 2;
+  int32 startedAt = 3;
+  repeated bytes frame = 4;
+  repeated int32 timestamp = 5;
+  repeated int32 step = 6;
+}
+
+message InferenceResponse {}

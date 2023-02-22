@@ -12,8 +12,11 @@
   },
   "dependencies": {
     "@golevelup/nestjs-rabbitmq": "^3.4.0",
-    "@nestjs/common": "^9.0.0",
-    "@nestjs/core": "^9.0.0",
+    "@grpc/grpc-js": "^1.8.10",
+    "@grpc/proto-loader": "^0.7.5",
+    "@nestjs/cli": "^9.2.0",
+    "@nestjs/common": "^9.2.1",
+    "@nestjs/core": "^9.2.1",
     "@nestjs/platform-express": "^9.0.0",
     "@types/cache-manager": "^4.0.2",
     "@types/cache-manager-ioredis": "^2.0.3",
@@ -31,8 +34,8 @@
     "uuid": "^9.0.0"
   },
   "devDependencies": {
-    "@nestjs/cli": "^9.0.0",
     "@nestjs/config": "^2.2.0",
+    "@nestjs/microservices": "^9.2.1",
     "@nestjs/platform-socket.io": "^9.2.1",
     "@nestjs/schematics": "^9.0.0",
     "@nestjs/testing": "^9.0.0",
