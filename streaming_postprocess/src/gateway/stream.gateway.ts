@@ -37,8 +37,11 @@ class StreamGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
   @RabbitSubscribe({ queue: 'postprocess_queue' })
   sendStream(postStreamDto: PostStreamDto) {
-    const fps = this.frameManager.calculateFrame();
-    this.server.to(postStreamDto.sessionId).emit('server:postprocess:stream', { sequence: postStreamDto.sequence, results: postStreamDto.result, fps: fps });
+    const serverTime = Date.now();
+    postStreamDto.fps = this.frameManager.calculateFrame();
+    postStreamDto.step.push(serverTime - postStreamDto.timestamp[postStreamDto.timestamp.length - 1]);
+    postStreamDto.timestamp.push(serverTime);
+    this.server.to(postStreamDto.sessionId).emit('server:postprocess:stream', postStreamDto);
   }
 }
 

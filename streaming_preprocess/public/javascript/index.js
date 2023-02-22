@@ -1,54 +1,33 @@
 import { connectStreamPreProcess } from './socket.js';
-import { socketHost, socketPath, camera, videoElement, bufferCanvas, changedContext, changedCanvas, bufferContext } from './context.js';
+import { socketHost, socketPath, fixedFPS, videoElement, bufferCanvas, bufferContext, bufferQueue, socket, videoInfo } from './context.js';
 
 let flag = false;
-
-let fps = 0;
-let frameCount = 0;
-let interval = 1000;
-let lastTime = performance.now();
-
-const calculateFrame = () => {
-  const currTime = performance.now();
-  const elapsedTime = lastTime ? currTime - lastTime : 0;
-
-  frameCount++;
-  if (elapsedTime >= interval) {
-    fps = Math.round(frameCount / (elapsedTime / 1000));
-    frameCount = 0;
-    lastTime = currTime;
-  }
-
-  return fps;
-}
-
-const blobOption = {
-  quality: 0.5,
-  progressive: true
-}
-
-const image = new Image();
-
-image.onload = () => {
-  changedContext.drawImage(image, 0, 0, changedCanvas.width, changedCanvas.height);
-}
 
 const handleFrame = () => {
   if (!flag) return;
 
   bufferContext.drawImage(videoElement, 0, 0, bufferCanvas.width, bufferCanvas.height);
-  bufferCanvas.toBlob((blob) => {
-    const blobUrl = URL.createObjectURL(blob);
-    image.src = blobUrl;
+  bufferCanvas.toBlob(async (blob) => {
+    if (blob.size <= 100000) return;
+    const base64 = bufferCanvas.toDataURL('image/png', 1);
+    bufferQueue.push(base64);
+    videoInfo.sequence++;
+    socket.preProcess.emit('client:preprocess:stream', { sequence: videoInfo.sequence, frame: blob, timestamp: Date.now() });
   }, 'image/png', 0.5);
 
-  requestAnimationFrame(handleFrame);
 }
 
 const loadVideo = async () => {
   if (flag) return;
   
   flag = true;
+
+  videoInfo.sequence = 0;
+  videoInfo.startedAt = new Date();
+  videoInfo.fps = [];
+  for (const key in videoInfo.latency) {
+    videoInfo.latency[key] = [];
+  }
   
   // camera.start();
   navigator.mediaDevices.getUserMedia({ video: { width: 640, height: 480, frameRate: { ideal: 60, max: 60 } } })
@@ -56,7 +35,13 @@ const loadVideo = async () => {
       videoElement.srcObject = stream;
       videoElement.play();
 
-      requestAnimationFrame(handleFrame);
+      const cameraInterval = setInterval(() => {
+        if (!flag) {
+            clearInterval(cameraInterval);
+            return;
+        }
+        handleFrame();
+    }, 1000 / fixedFPS);
     })
     .catch((error) => {
       console.log(error);
@@ -70,6 +55,17 @@ const stopVideo = () => {
 
   // camera.stop();
   videoElement.srcObject = null;
+  const host = `${window.location.protocol}//${window.location.host.split(':')[0]}`;
+  const calculateLatency = (name, list) => {
+    const max = Math.max(...list);
+    const min = Math.min(...list);
+    const avg = (list.reduce((a, b) => a + b, 0) / list.length).toFixed(2);
+    return `[${name}] - 최소: ${min}ms, 최대: ${max}ms, 평균: ${avg}ms`;
+  }
+  axios.post(`${host}/auth/slack`, {
+    text: `Latency 테스트 - ${videoInfo.startedAt}\n총 테스트 시간 - ${(new Date().getTime() - videoInfo.startedAt.getTime()) / 1000}초\n처리된 Frame 개수 - ${videoInfo.sequence}\nFPS - 최소: ${Math.min(...videoInfo.fps)}, 최대: ${Math.max(...videoInfo.fps)}, 평균: ${(videoInfo.fps.reduce((a, b) => a + b, 0) / videoInfo.fps.length).toFixed(2)}\n\n\n${calculateLatency("Client -> Input Server", videoInfo.latency.input)}\n${calculateLatency("Input Server -> Inference Server", videoInfo.latency.messageQueue)}\n${calculateLatency("Inference Processing", videoInfo.latency.inference)}\n${calculateLatency("Inference Server -> Output Server", videoInfo.latency.output)}\n${calculateLatency("Output Server -> Client", videoInfo.latency.client)}\n\n==========================================\n\n`
+  })
+
 };
 
 export const initialHostSetting = async (environment) => {

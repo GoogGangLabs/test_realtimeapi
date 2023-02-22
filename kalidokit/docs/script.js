@@ -307,6 +307,7 @@ const drawResults = (results) => {
 // });
 
 let flag = false;
+let sequence = 0;
 const bufferCanvas = document.getElementById('buffer-canvas');
 const bufferContext = bufferCanvas.getContext('2d');
 bufferCanvas.width = 640;
@@ -322,7 +323,9 @@ const handleFrame = () => {
         if (blob.size <= 100000) return;
         // const image = await blob.arrayBuffer();
         //   const base64 = image.toString('base64');
-        socket.preProcess.emit('client:preprocess:stream', { frame: blob });
+        sequence++;
+        console.log(`${sequence} - ${blob}`)
+        socket.preProcess.emit('client:preprocess:stream', { sequence: sequence, frame: blob, timestamp: Date.now() });
     }, 'image/png', 1);
   
   }
@@ -343,7 +346,7 @@ const loadVideo = async () => {
                 return;
             }
             handleFrame();
-        }, 1000 / 20);
+        }, 1000 / 10);
     })
     .catch((error) => {
     console.log(error);
@@ -377,6 +380,12 @@ const streamPostProcessOn = () => {
   
     socket.postProcess.on('server:postprocess:stream', (data) => {
         const results = data.results;
+        const fps = data.fps;
+        const timestamp = data.timestamp;
+
+        const log = document.getElementById('latency-log');
+
+        log.innerHTML = `${fps}fps, ${Date.now() - timestamp}ms`;
     
         drawResults(results);
         // Animate model
