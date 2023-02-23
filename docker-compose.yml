@@ -42,20 +42,24 @@ services:
       - .env
     restart: always
 
-  # streaming_deep_learning1:
-  #   container_name: streaming_deep_learning1
-  #   build:
-  #     context: streaming_deep_learning
-  #   image: streaming_deep_learning1
-  #   depends_on:
-  #     streaming_pipeline:
-  #       condition: service_healthy
-  #   networks:
-  #     goodganglabs:
-  #       ipv4_address: 172.20.0.7
-  #   env_file:
-  #     - .env
-  #   restart: always
+  streaming_deep_learning1:
+    container_name: streaming_deep_learning1
+    build:
+      context: streaming_deep_learning
+    image: streaming_deep_learning1
+    ports:
+      - 50051:50051
+    depends_on:
+      streaming_pipeline:
+        condition: service_healthy
+    networks:
+      goodganglabs:
+        ipv4_address: ${DEEP_LEARNING_HOST}
+    volumes:
+      - ./grpc:/usr/local/grpc
+    env_file:
+      - .env
+    restart: always
 
   # streaming_deep_learning2:
   #   container_name: streaming_deep_learning2

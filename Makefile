@@ -1,5 +1,7 @@
 ### Variable #######################################
 
+SHELL               :=  /bin/bash
+
 DOCKER_COMPOSE_YML  :=  docker-compose.yml
 DOCKER_COMPOSE_ENV  :=  .env
 DOCKER_COMPOSE      :=  @docker-compose -f $(DOCKER_COMPOSE_YML) --env-file=$(DOCKER_COMPOSE_ENV)
