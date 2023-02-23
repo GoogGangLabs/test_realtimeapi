@@ -18,16 +18,16 @@ const bootstrap = async () => {
   app.useStaticAssets(`${path}/public`);
   app.setBaseViewsDir(`${path}/public`);
   app.setViewEngine('ejs');
-  app.connectMicroservice<MicroserviceOptions>({
-    transport: Transport.GRPC,
-    options: {
-      package: 'inference',
-      credentials: ServerCredentials.createInsecure(),
-      protoPath: join(__dirname, '../inference.proto'),
-    },
-  });
+  // app.connectMicroservice<MicroserviceOptions>({
+  //   transport: Transport.GRPC,
+  //   options: {
+  //     package: 'inference',
+  //     credentials: ServerCredentials.createInsecure(),
+  //     protoPath: join(__dirname, '../inference.proto'),
+  //   },
+  // });
 
-  await app.startAllMicroservices();
+  // await app.startAllMicroservices();
   await app.listen(port, () => {
     console.log(`=== ENV: ${process.env.NODE_ENV}`);
     console.log(`=== Service: Streaming Preprocess`);

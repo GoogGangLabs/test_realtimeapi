@@ -20,16 +20,17 @@ import { join } from 'path';
     //     return { uri: `amqp://${username}:${password}@${host}` }
     //   }
     // }),
-    ClientsModule.register([
-      {
-        name: 'INFERENCE_PACKAGE',
-        transport: Transport.GRPC,
-        options: {
-          package: 'inference',
-          protoPath: join(__dirname, "../../inference.proto")
-        }
-      }
-    ]),
+    // ClientsModule.register([
+    //   {
+    //     name: 'INFERENCE_PACKAGE',
+    //     transport: Transport.GRPC,
+    //     options: {
+    //       url: `${process.env.DEEP_LEARNING_HOST}:8000`,
+    //       package: 'inference',
+    //       protoPath: join(__dirname, "../../inference.proto")
+    //     }
+    //   }
+    // ]),
     CacheModule.registerAsync({
       imports: [ConfigModule],
       inject: [ConfigService],

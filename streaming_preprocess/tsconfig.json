@@ -21,6 +21,7 @@
       "@controller/*": ["./src/controller/*"],
       "@gateway/*": ["./src/gateway/*"],
       "@domain/*": ["./src/domain/*"],
+      "@generated/*": ["src/generated/*"],
       "@src/*": ["./src/*"]
     }
   }

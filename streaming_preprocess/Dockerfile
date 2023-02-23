@@ -14,3 +14,5 @@ COPY . .
 RUN yarn build
 
 ENTRYPOINT [ "yarn", "deploy" ]
+
+# ENTRYPOINT [ "sh", "entrypoint.sh"]
