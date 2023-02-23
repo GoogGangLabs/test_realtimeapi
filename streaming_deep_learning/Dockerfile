@@ -13,7 +13,8 @@ RUN python3 -m pip install grpcio-tools
 COPY ./grpc/requirements.txt ./
 RUN pip3 install -r requirements.txt
 
-COPY ./grpc/main.py ./grpc/inference.proto ./
-RUN python3 -m grpc_tools.protoc -I. --python_out=. --grpc_python_out=. ./inference.proto
+COPY ./grpc/* ./
 
-ENTRYPOINT [ "python3", "-u", "main.py" ]
+CMD [ "python3", "-u", "main.py" ]
+
+ENTRYPOINT [ "sh", "entrypoint.sh"]

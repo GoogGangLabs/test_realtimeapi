@@ -54,8 +54,8 @@ def checkTime(timestamp, step):
 
 class Inference(inference_pb2_grpc.InferenceServicer):
 
-  def InputStream(self, request, context):
-    
+  def InputStream(self, request: inference_pb2.StreamRequest, context) -> inference_pb2.InferenceResponse:
+
     checkTime(request['timestamp'], request['step'])
     
     np_data = numpy.asarray(request['frame']['data'], numpy.uint8)
@@ -82,12 +82,15 @@ class Inference(inference_pb2_grpc.InferenceServicer):
     channel.basic_publish(exchange=PUB_EXCHANGE, routing_key='', body=json.dumps(dict).encode())
 
     return inference_pb2.InferenceResponse()
+  
+  def SayHello(self, request: inference_pb2.HelloRequest, context) -> inference_pb2.HelloReply:
+    return inference_pb2.HelloReply(message=f'Hello, {request.name}!, {request.num}!, {request.has_boolean}!')
 
 def serve():
   server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))
   inference_pb2_grpc.add_InferenceServicer_to_server(Inference(), server)
 
-  server.add_insecure_port('[::]:8000')
+  server.add_insecure_port('[::]:50051')
   server.start()
   server.wait_for_termination()
 

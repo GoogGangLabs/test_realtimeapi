@@ -4,15 +4,29 @@ package inference;
 
 service Inference {
   rpc InputStream (StreamRequest) returns (InferenceResponse) {}
+
+  rpc SayHello (HelloRequest) returns (HelloReply) {}
 }
 
 message StreamRequest {
   string sessionId = 1;
   int32 sequence = 2;
   int32 startedAt = 3;
-  repeated bytes frame = 4;
+  bytes frame = 4;
   repeated int32 timestamp = 5;
   repeated int32 step = 6;
 }
 
 message InferenceResponse {}
+
+message HelloRequest {
+  string name = 1;
+  int32 num = 2;
+  bool has_boolean = 3;
+}
+
+message HelloReply {
+  string message = 1;
+  int32 id = 2;
+  bool has_boolean = 3;
+}
