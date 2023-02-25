@@ -6,7 +6,7 @@
   "private": true,
   "license": "UNLICENSED",
   "scripts": {
-    "build": "nest build && cp -R src/generated dist/",
+    "build": "nest build",
     "deploy": "cross-env NODE_ENV=prod pm2-runtime start dist/main.js",
     "start": "cross-env NODE_ENV=dev nest start --watch"
   },

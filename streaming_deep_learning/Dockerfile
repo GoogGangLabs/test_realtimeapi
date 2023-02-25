@@ -6,15 +6,18 @@ WORKDIR /usr/local/app
 RUN apt update && apt install -y --no-install-recommends \
         python3 \
         python3-pip \
+        python3-venv \
         python3-opencv
 
 RUN python3 -m pip install grpcio-tools
 
-COPY ./grpc/requirements.txt ./
-RUN pip3 install -r requirements.txt
+SHELL ["/bin/bash", "-c"]
 
-COPY ./grpc/* ./
+COPY requirements.txt ./
+RUN python3 -m venv venv && \
+    source venv/bin/activate && \
+    pip install -r requirements.txt
 
-CMD [ "python3", "-u", "main.py" ]
+COPY main.py entrypoint.sh ./
 
-ENTRYPOINT [ "sh", "entrypoint.sh"]
+ENTRYPOINT [ "bash", "entrypoint.sh"]

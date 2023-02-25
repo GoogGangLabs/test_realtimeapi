@@ -44,7 +44,7 @@ up:
 	fi
 
 down:
-	make -- --stop;
+	@make -- --stop;
 
 re:
 	@if [ $(CONTAINER_FLAG) -gt 1 ]; then \

@@ -10,10 +10,7 @@ services:
       - 3000
       - 4000
     depends_on:
-      streaming_pipeline:
-        condition: service_healthy
-      streaming_cache_store:
-        condition: service_started
+      - streaming_cache_store
     networks:
       goodganglabs:
         ipv4_address: ${PREPROCESS_HOST}
@@ -31,10 +28,7 @@ services:
     expose:
       - 5000
     depends_on:
-      streaming_pipeline:
-        condition: service_healthy
-      streaming_cache_store:
-        condition: service_started
+      - streaming_cache_store
     networks:
       goodganglabs:
         ipv4_address: ${POSTPROCESS_HOST}
@@ -47,79 +41,90 @@ services:
     build:
       context: streaming_deep_learning
     image: streaming_deep_learning1
-    ports:
-      - 50051:50051
+    expose:
+      - 50051
     depends_on:
-      streaming_pipeline:
-        condition: service_healthy
+      - streaming_cache_store
     networks:
       goodganglabs:
-        ipv4_address: ${DEEP_LEARNING_HOST}
+        ipv4_address: 172.20.0.7
     volumes:
       - ./grpc:/usr/local/grpc
     env_file:
       - .env
     restart: always
 
-  # streaming_deep_learning2:
-  #   container_name: streaming_deep_learning2
-  #   build:
-  #     context: streaming_deep_learning
-  #   image: streaming_deep_learning2
-  #   depends_on:
-  #     streaming_pipeline:
-  #       condition: service_healthy
-  #   networks:
-  #     goodganglabs:
-  #       ipv4_address: 172.20.0.8
-  #   env_file:
-  #     - .env
-  #   restart: always
+  streaming_deep_learning2:
+    container_name: streaming_deep_learning2
+    build:
+      context: streaming_deep_learning
+    image: streaming_deep_learning2
+    expose:
+      - 50051
+    depends_on:
+      - streaming_cache_store
+    networks:
+      goodganglabs:
+        ipv4_address: 172.20.0.8
+    volumes:
+      - ./grpc:/usr/local/grpc
+    env_file:
+      - .env
+    restart: always
 
-  # streaming_deep_learning3:
-  #   container_name: streaming_deep_learning3
-  #   build:
-  #     context: streaming_deep_learning
-  #   image: streaming_deep_learning3
-  #   depends_on:
-  #     streaming_pipeline:
-  #       condition: service_healthy
-  #   networks:
-  #     goodganglabs:
-  #       ipv4_address: 172.20.0.9
-  #   env_file:
-  #     - .env
-  #   restart: always
+  streaming_deep_learning3:
+    container_name: streaming_deep_learning3
+    build:
+      context: streaming_deep_learning
+    image: streaming_deep_learning3
+    expose:
+      - 50051
+    depends_on:
+      - streaming_cache_store
+    networks:
+      goodganglabs:
+        ipv4_address: 172.20.0.9
+    volumes:
+      - ./grpc:/usr/local/grpc
+    env_file:
+      - .env
+    restart: always
+  
+  streaming_deep_learning4:
+    container_name: streaming_deep_learning4
+    build:
+      context: streaming_deep_learning
+    image: streaming_deep_learning4
+    expose:
+      - 50051
+    depends_on:
+      - streaming_cache_store
+    networks:
+      goodganglabs:
+        ipv4_address: 172.20.0.10
+    volumes:
+      - ./grpc:/usr/local/grpc
+    env_file:
+      - .env
+    restart: always
 
-  # streaming_deep_learning4:
-  #   container_name: streaming_deep_learning4
-  #   build:
-  #     context: streaming_deep_learning
-  #   image: streaming_deep_learning4
-  #   depends_on:
-  #     streaming_pipeline:
-  #       condition: service_healthy
-  #   networks:
-  #     goodganglabs:
-  #       ipv4_address: 172.20.0.10
-  #   env_file:
-  #     - .env
-  #   restart: always
-
-  # streaming_deep_learning5:
-  #   container_name: streaming_deep_learning5
-  #   build:
-  #     context: streaming_deep_learning
-  #   image: streaming_deep_learning5
-  #   depends_on:
-  #     streaming_pipeline:
-  #       condition: service_healthy
-  #   networks:
-  #     goodganglabs:
-  #       ipv4_address: 172.20.0.11
-  #   env_file:
-  #     - .env
-  #   restart: always
+  streaming_deep_learning5:
+    container_name: streaming_deep_learning5
+    build:
+      context: streaming_deep_learning
+    image: streaming_deep_learning5
+    expose:
+      - 50051
+    depends_on:
+      - streaming_cache_store
+    networks:
+      goodganglabs:
+        ipv4_address: 172.20.0.11
+    volumes:
+      - ./grpc:/usr/local/grpc
+    env_file:
+      - .env
+    restart: always
 
   streaming_cache_store:
     container_name: streaming_cache_store
@@ -129,26 +134,6 @@ services:
     networks:
       goodganglabs:
         ipv4_address: ${REDIS_HOST}
-    restart: always
-  
-  streaming_pipeline:
-    container_name: streaming_pipeline
-    build:
-      context: streaming_pipeline
-    image: streaming_pipeline
-    ports:
-      - 5672:5672
-      - 15672:15672
-    networks:
-      goodganglabs:
-        ipv4_address: ${RABBITMQ_HOST}
-    env_file:
-      - .env
-    healthcheck:
-        test: ["CMD", "curl", "-f", "http://localhost:15672"]
-        interval: 10s
-        timeout: 10s
-        retries: 5
     restart: always
 
   streaming_router:
