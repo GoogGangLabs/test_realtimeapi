@@ -11,49 +11,29 @@ import {
   WebSocketServer,
 } from '@nestjs/websockets';
 import { Server } from 'socket.io';
+import { Cache } from 'cache-manager';
+import { credentials } from '@grpc/grpc-js';
 
 import ClientSocket from '@domain/client.socket';
-import PreStreamDto from '@domain/pre.stream.dto';
-import { Cache } from 'cache-manager';
-import { Client, ClientGrpc, Transport } from '@nestjs/microservices';
-import { map, Observable } from 'rxjs';
-import { join } from 'path';
 
-import { StreamRequest, InferenceResponse} from '@generated/inference_pb';
-import { InferenceClient } from '@generated/inference_grpc_pb';
-
-const PROTO_PATH = '../../../grpc/inference.proto';
+import { StreamRequest, InferenceResponse } from '@grpc/inference/inference_pb';
+import { InferenceClient } from '@grpc/inference/inference_grpc_pb';
 
 @WebSocketGateway(4000, { cors: { origin: '*', credentials: true } })
-class StreamGateway implements OnGatewayConnection, OnGatewayDisconnect, OnModuleInit {
+class StreamGateway implements OnGatewayConnection, OnGatewayDisconnect {
   @WebSocketServer()
   private readonly server: Server;
 
-  private readonly channel: string;
+  private readonly client: InferenceClient[];
 
-  @Client({
-    transport: Transport.GRPC,
-    options: {
-      url: `${process.env.DEEP_LEARNING_HOST}:50051`,
-      package: 'inference',
-      protoPath: join(__dirname, '../../../grpc/inference.proto')
-    }
-  })
-  private readonly client: ClientGrpc;
-
-  private inferenceService: InferenceClient;
+  private sequence: number = 0;
 
   constructor(
     private readonly configService: ConfigService,
-    // private readonly amqpConnection: AmqpConnection,
-    // @Inject('INFERENCE_PACKAGE') private readonly client: ClientGrpc,
     @Inject(CACHE_MANAGER) private readonly cacheManager: Cache
   ) {
-    // this.channel = this.configService.get('RABBITMQ_PRE_EXCHANGE');
-  }
-
-  onModuleInit() {
-    this.inferenceService = this.client.getService<InferenceClient>('Inference');
+    let ip = 7;
+    this.client = Array.from({ length: 5 }, () => new InferenceClient(`172.20.0.${ip++}:50051`, credentials.createInsecure()));
   }
 
   async handleConnection(client: ClientSocket) {
@@ -84,15 +64,16 @@ class StreamGateway implements OnGatewayConnection, OnGatewayDisconnect, OnModul
     request.setSessionid(client.sessionId);
     request.setSequence(sequence);
     request.setStartedat(timestamp);
-    request.setFrame(frame);
+    request.setImage(Buffer.from(frame));
     request.setTimestampList([serverTime]);
     request.setStepList([serverTime - timestamp]);
-    // const payload = PreStreamDto.fromData(client.sessionId, sequence, frame, timestamp);
-    this.inferenceService.inputStream(request, (err, response: InferenceResponse) => {
-      console.log(err);
-      console.log(response)
-    });
-    // this.amqpConnection.publish(this.channel, '', payload);
+    this.client[this.sequence].inputStream(request, (err, res: InferenceResponse) => {
+      if (err) {
+        console.log(err);
+      }
+    })
+    if (this.sequence === 4) this.sequence = -1;
+    this.sequence++;
   }
 }
 
