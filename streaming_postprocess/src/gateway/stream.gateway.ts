@@ -2,7 +2,6 @@ import { CACHE_MANAGER, Inject } from '@nestjs/common';
 import { Cache } from 'cache-manager';
 import { OnGatewayConnection, OnGatewayDisconnect, WebSocketGateway, WebSocketServer } from '@nestjs/websockets';
 import { Server } from 'socket.io';
-import { RabbitSubscribe } from '@golevelup/nestjs-rabbitmq';
 
 import ClientSocket from '@domain/client.socket';
 import PostStreamDto from '@domain/post.stream.dto';
@@ -12,6 +11,7 @@ import FrameManager from '@domain/frame.manager';
 class StreamGateway implements OnGatewayConnection, OnGatewayDisconnect {
   @WebSocketServer()
   private readonly server: Server;
+
   private frameManager = new FrameManager();
 
   constructor(@Inject(CACHE_MANAGER) private readonly cacheManager: Cache) {}
@@ -35,7 +35,6 @@ class StreamGateway implements OnGatewayConnection, OnGatewayDisconnect {
     client.disconnect();
   }
 
-  @RabbitSubscribe({ queue: 'postprocess_queue' })
   sendStream(postStreamDto: PostStreamDto) {
     const serverTime = Date.now();
     postStreamDto.fps = this.frameManager.calculateFrame();
