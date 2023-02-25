@@ -4,9 +4,7 @@
 
 <img width="1470" alt="Screen Shot 2023-01-25 at 7 57 06 PM" src="https://user-images.githubusercontent.com/74334399/214546213-ed6f75d5-ecce-4759-bba4-0ed54d151e17.png">
 
-> 저사양 서버 사용으로 인해 저해상도 영상으로 딥러닝 처리를 하여, 딥러닝 결과가 주변 환경에 영향을 많이 받는 점 참고해 주시면 감사합니다.
-
-### (배포 임시 종료) ~~데모 페이지 - [https://goodganglabs.xyz](https://goodganglabs.xyz)~~
+### 데모 페이지 - [https://goodganglabs.xyz](https://goodganglabs.xyz)
 
 ### API 명세 - [api.md](https://github.com/jcggl/test_realtimeapi/blob/main/documents/api.md)
 
@@ -31,8 +29,6 @@
 ### [2. 프로젝트 실행](#%EF%B8%8F-%ED%94%84%EB%A1%9C%EC%A0%9D%ED%8A%B8-%EC%8B%A4%ED%96%89)
 
 ### [3. 화면 시연](#-%ED%99%94%EB%A9%B4-%EC%8B%9C%EC%97%B0)
-
-### [4. 퇴고](#-%ED%87%B4%EA%B3%A0)
 
 <br>
 
@@ -106,53 +102,13 @@
 ```SHELL
 # 프로젝트 루트 폴더인 test_realtimeapi를 기준으로 합니다.
 
-## Docker 빌드 시
 $ touch .env
 
-## 서비스 별 빌드 시
-$ touch ./streaming_preprocess/.env.dev
-
-위 파일을 생성한 뒤, DM으로 첨부드린 환경 변수 내용을 붙여 넣고 진행하시면 됩니다.
-```
-
-<br>
-
-> Docker 빌드 시
-
-```SHELL
 $ docker-compose up --build
 
 http://localhost 접속
-```
 
-<br>
-
-> 서비스 별 빌드 시
-
-```SHELL
-# 빌드에 필요한 프로그램은 설치가 완료되어 있다고 가정한 뒤의 예시입니다.
-
-# Redis
-# host: 127.0.0.1, port: 6379를 기준으로 합니다.
-$ redis-server
-
-# Nginx
-# streaming_router/server.conf 파일을 /etc/nginx/http.d/ 경로에 먼저 추가해야 합니다.
-$ nginx -g
-
-# Streaming 수신 서버
-streaming_preprocess $ yarn
-streaming_preprocess $ yarn start
-
-# 딥러닝 결과 송신 서버
-streaming_preprocess $ yarn
-streaming_preprocess $ yarn start
-
-# 딥러닝 처리 서버
-streaming_deep_learning $ pip install -r requirements.txt
-streaming_deep_learning $ python main.py
-
-http://localhost:3000 접속
+위 파일을 생성한 뒤, DM으로 첨부드린 환경 변수 내용을 붙여 넣고 진행하시면 됩니다.
 ```
 
 <br>
@@ -160,28 +116,5 @@ http://localhost:3000 접속
 ## 🖥 화면 시연
 
 https://user-images.githubusercontent.com/74334399/214555628-d9d4bdcc-92bd-4d18-8a06-670664f3267c.mov
-
-<br>
-
-## 👣 퇴고
-
-NestJS 기반 소켓 서버를 이용해 영상 Stream을 송/수신하였습니다.<br>
-단순 딥러닝 처리 서버를 구상한다기보다, 확장 가능한 서버 구조를 설계하는데 많은 노력이 들어갔습니다.<br>
-WebRTC를 이용한 P2P 딥러닝 스트리밍 서비스를 구현하고 싶었지만, 시간 제약상 구현하지 못한 부분이 아쉽게 다가오는것 같습니다. 😅<br>
-
-<br>
-
-그나마 괜찮은 결과를 위해 볼륨을 키웠는데, 좋은 결과로 돌아왔으면 좋겠습니다. 😂<br>
-단순 기능 추가를 목적으로 하는것이 아닌, 코드 가독성/간결성, 획일화 된 구조, 확장 가능한 설계에 노력을 기울였습니다.<br>
-
-<br>
-
-짧고 굵게 진행된 프로젝트였지만, 굉장히 재밌게 진행한 프로젝트였습니다.<br>
-구현하며 아쉬운 부분, 숨겨진 요소를 구현하며 흥미진진하게 진행했던 것 같습니다.<br>
-구현 외적으로 생각할 부분이 많아, 덕분에 학습할 수 있는 계기가 되었습니다.<br>
-
-<br>
-
-좋은 기회 주셔서 정말 재밌게 프로젝트를 진행하였습니다! 감사합니다. 😄<br>
 
 <br>
