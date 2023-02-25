@@ -41,7 +41,7 @@ const videoInfo = {
   latency: latencyChecker
 }
 
-const fixedFPS = 10;
+const fixedFPS = 30;
 const bufferQueue = new BufferQueue();
 const sessionId = document.cookie
   ? document.cookie
