@@ -7,37 +7,47 @@ import time
 import math
 import base64
 import zlib
-import redis
 
 from concurrent import futures
 
+from google.protobuf.json_format import ParseDict
 import grpc
+import result_pb2
 import inference_pb2
 import inference_pb2_grpc
 
-host = os.environ.get('REDIS_HOST')
-port = os.environ.get('REDIS_PORT')
-
-conn = redis.Redis(host, port, db=0)
-
 mp_holistic = mp.solutions.holistic
 
-def get_landmark_list(landmarks):
+def get_landmark_list(landmarks, temp):
   landmark_list = []
 
   if landmarks is None:
     return landmark_list
 
   for _, landmark in enumerate(landmarks.landmark):
-    element = {}
-    element['x'] = landmark.x
-    element['y'] = landmark.y
-    element['z'] = landmark.z
+    element = result_pb2.LandmarkResult()
+    element.x = landmark.x
+    element.y = landmark.y
+    element.z = landmark.z
 
-    if landmark.visibility > 0.0:
-      element['visibility'] = landmark.visibility
+    temp.append(element)
 
-    landmark_list.append(element)
+  return landmark_list
+
+def get_landmark_visibility_list(landmarks, temp):
+  landmark_list = []
+
+  if landmarks is None:
+    return landmark_list
+
+  for _, landmark in enumerate(landmarks.landmark):
+    element = result_pb2.LandmarkVisibilityResult()
+    element.x = landmark.x
+    element.y = landmark.y
+    element.z = landmark.z
+    element.visibility = landmark.visibility
+
+    temp.append(element)
 
   return landmark_list
 
@@ -52,8 +62,6 @@ class Inference(inference_pb2_grpc.InferenceServicer):
 
   def InputStream(self, request: inference_pb2.StreamRequest, context) -> inference_pb2.InferenceResponse:
 
-    if (request.sequence > 5000):
-      return
     checkTime(request.timestamp, request.step)
 
     start = time.time()
@@ -65,32 +73,31 @@ class Inference(inference_pb2_grpc.InferenceServicer):
     start = time.time()
     result = self.holistic.process(image[..., ::-1])
     end2 = time.time() - start
-    print(f"{request.sequence} - 이미지 처리: {math.floor(end1 * 1000)}ms, 이미지 추론: {math.floor(end2 * 1000)}ms")
 
-    resultJSON = {
-      'left_hand': get_landmark_list(result.left_hand_landmarks),
-      'right_hand': get_landmark_list(result.right_hand_landmarks),
-      'pose': get_landmark_list(result.pose_landmarks),
-      'face': get_landmark_list(result.face_landmarks)
-    }
+    start = time.time()
+    inferenceResult = result_pb2.InferenceResult()
+
+    get_landmark_list(result.face_landmarks, inferenceResult.face),
+    get_landmark_list(result.left_hand_landmarks, inferenceResult.left_hand),
+    get_landmark_list(result.right_hand_landmarks, inferenceResult.right_hand),
+    get_landmark_visibility_list(result.pose_landmarks, inferenceResult.pose)
+    
+    end3 = time.time() - start
+    print(f"{request.sequence} - 복원: {math.floor(end1 * 1000)}ms, 추론: {math.floor(end2 * 1000)}ms, 취합: {math.floor(end3 * 1000)}ms")
 
     checkTime(request.timestamp, request.step)
 
-    dict = {
-      'sessionId': request.sessionId,
-      'sequence': request.sequence,
-      'result': resultJSON,
-      'startedAt': request.startedAt,
-      'timestamp': list(request.timestamp),
-      'step': list(request.step)
-    }
-
-    conn.publish(channel='STREAM_POSTPROCESS', message=json.dumps(dict).encode())
-
-    return inference_pb2.InferenceResponse(status=200)
+    return inference_pb2.InferenceResponse(
+      sessionId=request.sessionId,
+      sequence=request.sequence,
+      startedAt=request.startedAt,
+      timestamp=request.timestamp,
+      step=request.step,
+      result=inferenceResult
+    )
 
 def serve():
-  server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))
+  server = grpc.server(futures.ThreadPoolExecutor(max_workers=20))
   inference_pb2_grpc.add_InferenceServicer_to_server(Inference(), server)
 
   server.add_insecure_port('[::]:50051')

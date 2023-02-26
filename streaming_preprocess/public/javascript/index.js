@@ -3,21 +3,37 @@ import { socketHost, socketPath, fixedFPS, videoElement, bufferCanvas, bufferCon
 
 let flag = false;
 
+const checkFrameTime = (timestamp, currTime) => {
+  const sub = [];
+
+  for (let i = 0; i < timestamp.length - 1; i++) {
+    sub.push(timestamp[i + 1] - timestamp[i]);
+  }
+
+  return `총 시간: ${currTime - timestamp[0]}, 이미지 추출: ${sub[0]}, Base64 인코딩: ${sub[1]}, Base64 이미지 추출: ${sub[2]}, 이미지 압축: ${sub[3]}`;
+}
+
 const handleFrame = () => {
   if (!flag) return;
 
+  const timestamp = [Date.now()];
   bufferContext.drawImage(videoElement, 0, 0, bufferCanvas.width, bufferCanvas.height);
+  timestamp.push(Date.now());
   const base64 = bufferCanvas.toDataURL('image/jpeg', 0.3);
+  timestamp.push(Date.now());
   
-  if (base64.length <= 1000) return;
+  if (base64.length <= 5000) return;
   
   const imageData = base64.split(',')[1];
+  timestamp.push(Date.now());
   const compressedData = pako.deflate(imageData, { level: 9 });
+  timestamp.push(Date.now());
 
   bufferQueue.push(base64);
   videoInfo.sequence++;
-  console.log(`${((base64.length - compressedData.length) / base64.length * 100).toFixed(2)}% 압축: ${base64.length} >> ${compressedData.length}`)
-  socket.preProcess.emit('client:preprocess:stream', { sequence: videoInfo.sequence, frame: compressedData, timestamp: Date.now() });
+  console.log(checkFrameTime(timestamp, Date.now()));
+  console.log(`${((base64.length - compressedData.length) / base64.length * 100).toFixed(2)}% 압축: ${base64.length} > ${compressedData.length}`)
+  socket.preProcess.emit('client:preprocess:stream', { sequence: videoInfo.sequence, frame: compressedData, timestamp: timestamp[0] });
 }
 
 const loadVideo = async () => {
@@ -90,9 +106,7 @@ export const initialHostSetting = async (environment) => {
   });
 
   socketHost.preprocess = environment === 'prod' ? `${host}` : `${host}:4000`;
-  socketHost.postprocess = environment === 'prod' ? `${host}` : `${host}:5000`;
   socketPath.preprocess = environment === 'prod' ? '/preprocess' : '/socket.io';
-  socketPath.postprocess = environment === 'prod' ? '/postprocess' : '/socket.io';
 
   connectStreamPreProcess();
 };

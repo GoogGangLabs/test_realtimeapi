@@ -20,22 +20,6 @@ services:
       - .env
     restart: always
 
-  streaming_postprocess:
-    container_name: streaming_postprocess
-    build:
-      context: streaming_postprocess
-    image: streaming_postprocess
-    expose:
-      - 5000
-    depends_on:
-      - streaming_cache_store
-    networks:
-      goodganglabs:
-        ipv4_address: ${POSTPROCESS_HOST}
-    env_file:
-      - .env
-    restart: always
-
   streaming_deep_learning1:
     container_name: streaming_deep_learning1
     build:
@@ -43,8 +27,6 @@ services:
     image: streaming_deep_learning1
     expose:
       - 50051
-    depends_on:
-      - streaming_cache_store
     networks:
       goodganglabs:
         ipv4_address: 172.20.0.7
@@ -61,8 +43,6 @@ services:
     image: streaming_deep_learning2
     expose:
       - 50051
-    depends_on:
-      - streaming_cache_store
     networks:
       goodganglabs:
         ipv4_address: 172.20.0.8
@@ -79,8 +59,6 @@ services:
     image: streaming_deep_learning3
     expose:
       - 50051
-    depends_on:
-      - streaming_cache_store
     networks:
       goodganglabs:
         ipv4_address: 172.20.0.9
@@ -97,8 +75,6 @@ services:
     image: streaming_deep_learning4
     expose:
       - 50051
-    depends_on:
-      - streaming_cache_store
     networks:
       goodganglabs:
         ipv4_address: 172.20.0.10
@@ -115,8 +91,6 @@ services:
     image: streaming_deep_learning5
     expose:
       - 50051
-    depends_on:
-      - streaming_cache_store
     networks:
       goodganglabs:
         ipv4_address: 172.20.0.11
@@ -146,7 +120,6 @@ services:
       - 443:80
     depends_on:
       - streaming_preprocess
-      - streaming_postprocess
     networks:
       goodganglabs:
         ipv4_address: ${NGINX_HOST}

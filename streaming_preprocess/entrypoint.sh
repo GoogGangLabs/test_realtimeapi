@@ -11,6 +11,6 @@ fi
     --proto_path=$PROTO_PATH \
     --js_out=import_style=commonjs,binary:$OUTPUT_PATH \
     --ts_out="service=grpc-node:$OUTPUT_PATH" \
-    --grpc_out=grpc_js:$OUTPUT_PATH $PROTO_PATH/inference.proto
+    --grpc_out=grpc_js:$OUTPUT_PATH $PROTO_PATH/inference.proto $PROTO_PATH/result.proto
 
 yarn build && yarn deploy

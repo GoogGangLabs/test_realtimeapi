@@ -5,7 +5,7 @@ class BufferQueue {
     this._list.push([buffer, Date.now()]);
   }
 
-  pop(sequence) {
+  pop() {
     const [buffer] = this._list.shift();
     return buffer;
   }
@@ -13,17 +13,14 @@ class BufferQueue {
 
 const socketHost = {
   preprocess: undefined,
-  postprocess: undefined,
 };
 
 const socketPath = {
   preprocess: undefined,
-  postprocess: undefined,
 };
 
 const socket = {
   preProcess: undefined,
-  postProcess: undefined,
 };
 
 const latencyChecker = {

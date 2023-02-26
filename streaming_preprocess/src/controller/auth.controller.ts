@@ -66,7 +66,7 @@ class AuthController {
       attachments: [
         {
             "fallback": "Image attachment",
-            "image_url": "https://user-images.githubusercontent.com/74334399/220571577-7f772a9d-bc90-4a13-9abb-76625d1ab4c6.png",
+            "image_url": "https://user-images.githubusercontent.com/74334399/221409700-86432bf2-bf4f-4a7a-aaec-2b4f47c7bcf3.png",
             "color": "#36a64f",
             "title": "Latency 구간 별 정보",
             "text": "process"
