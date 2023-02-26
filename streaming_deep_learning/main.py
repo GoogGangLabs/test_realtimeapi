@@ -60,7 +60,7 @@ class Inference(inference_pb2_grpc.InferenceServicer):
 
   holistic = mp_holistic.Holistic(min_detection_confidence=0.5, min_tracking_confidence=0.5)
 
-  def InputStream(self, request: inference_pb2.StreamRequest, context) -> inference_pb2.InferenceResponse:
+  def InputStream(self, request: inference_pb2.StreamRequest, _) -> inference_pb2.InferenceResponse:
 
     checkTime(request.timestamp, request.step)
 
@@ -96,7 +96,7 @@ class Inference(inference_pb2_grpc.InferenceServicer):
     )
 
 def serve():
-  server = grpc.server(futures.ThreadPoolExecutor(max_workers=20))
+  server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))
   inference_pb2_grpc.add_InferenceServicer_to_server(Inference(), server)
 
   server.add_insecure_port('[::]:50051')
