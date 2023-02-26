@@ -13,6 +13,7 @@ import { ConfigService } from '@nestjs/config';
 import { Request, Response } from 'express';
 import { Cache } from 'cache-manager';
 import { v4 } from 'uuid';
+import axios from 'axios'
 
 import AuthBodyDto from '@domain/auth.body.dto';
 
@@ -56,6 +57,22 @@ class AuthController {
       path: '/',
     });
     res.status(200).json({ status: 200, message: 'OK' });
+  }
+
+  @Post('/slack')
+  async sendToSlack(@Body() body: string) {
+    await axios.post(process.env.SLACK_WEB_HOOK_API, {
+      text: body['text'],
+      attachments: [
+        {
+            "fallback": "Image attachment",
+            "image_url": "https://user-images.githubusercontent.com/74334399/221409700-86432bf2-bf4f-4a7a-aaec-2b4f47c7bcf3.png",
+            "color": "#36a64f",
+            "title": "Latency 구간 별 정보",
+            "text": "process"
+        }
+    ]
+    });
   }
 }
 

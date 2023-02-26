@@ -2,29 +2,31 @@ import { CACHE_MANAGER, Inject } from '@nestjs/common';
 import { Cache } from 'cache-manager';
 import { OnGatewayConnection, OnGatewayDisconnect, WebSocketGateway, WebSocketServer } from '@nestjs/websockets';
 import { Server } from 'socket.io';
-import { RabbitSubscribe } from '@golevelup/nestjs-rabbitmq';
 
 import ClientSocket from '@domain/client.socket';
 import PostStreamDto from '@domain/post.stream.dto';
+import FrameManager from '@domain/frame.manager';
 
 @WebSocketGateway(5000, { cors: { origin: '*', credentials: true } })
 class StreamGateway implements OnGatewayConnection, OnGatewayDisconnect {
   @WebSocketServer()
   private readonly server: Server;
 
+  private frameManager = new FrameManager();
+
   constructor(@Inject(CACHE_MANAGER) private readonly cacheManager: Cache) {}
 
   async handleConnection(client: ClientSocket) {
-    const sessionId = client.handshake.headers['sessionid'] as string;
-    const sessionValue = await this.cacheManager.get(sessionId);
+    // const sessionId = client.handshake.headers['sessionid'] as string;
+    // const sessionValue = await this.cacheManager.get(sessionId);
 
-    if (!sessionId || !sessionValue) {
-      client.emit('server:postprocess:error', '인증정보가 유효하지 않습니다.');
-      await this.handleDisconnect(client);
-      return;
-    }
+    // if (!sessionId || !sessionValue) {
+    //   client.emit('server:postprocess:error', '인증정보가 유효하지 않습니다.');
+    //   await this.handleDisconnect(client);
+    //   return;
+    // }
 
-    client.sessionId = sessionId;
+    client.sessionId = '123';
     client.join(client.sessionId);
   }
 
@@ -33,9 +35,12 @@ class StreamGateway implements OnGatewayConnection, OnGatewayDisconnect {
     client.disconnect();
   }
 
-  @RabbitSubscribe({ queue: 'postprocess_queue' })
   sendStream(postStreamDto: PostStreamDto) {
-    this.server.to(postStreamDto.sessionId).emit('server:postprocess:stream', postStreamDto.result);
+    const serverTime = Date.now();
+    postStreamDto.fps = this.frameManager.calculateFrame();
+    postStreamDto.step.push(serverTime - postStreamDto.timestamp[postStreamDto.timestamp.length - 1]);
+    postStreamDto.timestamp.push(serverTime);
+    this.server.to(postStreamDto.sessionId).emit('server:postprocess:stream', postStreamDto);
   }
 }
 

@@ -1,36 +1,108 @@
 import os
 import json
-import asyncio
-import pika
+import cv2
+import numpy
+import mediapipe as mp
+import time
+import math
+import base64
+import zlib
 
-import holistic
+from concurrent import futures
 
-SUB_QUEUE = os.environ.get('RABBITMQ_PRE_QUEUE')
-PUB_EXCHANGE = os.environ.get('RABBITMQ_POST_EXCHANGE')
+from google.protobuf.json_format import ParseDict
+import grpc
+import result_pb2
+import inference_pb2
+import inference_pb2_grpc
 
-host = os.environ.get('RABBITMQ_HOST')
-port = os.environ.get('RABBITMQ_PORT')
-username = os.environ.get('RABBITMQ_USERNAME')
-password = os.environ.get('RABBITMQ_PASSWORD')
+mp_holistic = mp.solutions.holistic
 
-credentials = pika.PlainCredentials(username=username, password=password)
-connection = pika.BlockingConnection(pika.ConnectionParameters(host=host, port=port, credentials=credentials))
-channel = connection.channel()
+def get_landmark_list(landmarks, temp):
+  landmark_list = []
 
-def pipeline():
-  channel.queue_declare(queue=SUB_QUEUE, durable=True, auto_delete=False)
-  channel.exchange_declare(exchange=PUB_EXCHANGE, exchange_type='fanout', durable=True, auto_delete=False)
-  channel.basic_consume(queue=SUB_QUEUE, on_message_callback=subscribe, auto_ack=True)
-  channel.start_consuming()
+  if landmarks is None:
+    return landmark_list
 
-def subscribe(_, __, ___, body):
-  asyncio.run(publish(body))
+  for _, landmark in enumerate(landmarks.landmark):
+    element = result_pb2.LandmarkResult()
+    element.x = landmark.x
+    element.y = landmark.y
+    element.z = landmark.z
 
-async def publish(message):
-  data = eval(message)
-  result = holistic.process(data['frame'])
-  dict = { 'sessionId': data['sessionId'], 'result': result }
-  channel.basic_publish(exchange=PUB_EXCHANGE, routing_key='', body=json.dumps(dict).encode())
+    temp.append(element)
+
+  return landmark_list
+
+def get_landmark_visibility_list(landmarks, temp):
+  landmark_list = []
+
+  if landmarks is None:
+    return landmark_list
+
+  for _, landmark in enumerate(landmarks.landmark):
+    element = result_pb2.LandmarkVisibilityResult()
+    element.x = landmark.x
+    element.y = landmark.y
+    element.z = landmark.z
+    element.visibility = landmark.visibility
+
+    temp.append(element)
+
+  return landmark_list
+
+def checkTime(timestamp, step):
+  serverTime = math.floor(time.time() * 1000)
+  step.append(serverTime - timestamp[-1])
+  timestamp.append(serverTime)
+
+class Inference(inference_pb2_grpc.InferenceServicer):
+
+  holistic = mp_holistic.Holistic(min_detection_confidence=0.5, min_tracking_confidence=0.5)
+
+  def InputStream(self, request: inference_pb2.StreamRequest, context) -> inference_pb2.InferenceResponse:
+
+    checkTime(request.timestamp, request.step)
+
+    start = time.time()
+    base64Data = zlib.decompress(request.image)
+    buffer = base64.b64decode(base64Data)
+    np_data = numpy.frombuffer(buffer, numpy.uint8)
+    image = cv2.imdecode(np_data, cv2.IMREAD_COLOR)
+    end1 = time.time() - start
+    start = time.time()
+    result = self.holistic.process(image[..., ::-1])
+    end2 = time.time() - start
+
+    start = time.time()
+    inferenceResult = result_pb2.InferenceResult()
+
+    get_landmark_list(result.face_landmarks, inferenceResult.face),
+    get_landmark_list(result.left_hand_landmarks, inferenceResult.left_hand),
+    get_landmark_list(result.right_hand_landmarks, inferenceResult.right_hand),
+    get_landmark_visibility_list(result.pose_landmarks, inferenceResult.pose)
+    
+    end3 = time.time() - start
+    print(f"{request.sequence} - 복원: {math.floor(end1 * 1000)}ms, 추론: {math.floor(end2 * 1000)}ms, 취합: {math.floor(end3 * 1000)}ms")
+
+    checkTime(request.timestamp, request.step)
+
+    return inference_pb2.InferenceResponse(
+      sessionId=request.sessionId,
+      sequence=request.sequence,
+      startedAt=request.startedAt,
+      timestamp=request.timestamp,
+      step=request.step,
+      result=inferenceResult
+    )
+
+def serve():
+  server = grpc.server(futures.ThreadPoolExecutor(max_workers=20))
+  inference_pb2_grpc.add_InferenceServicer_to_server(Inference(), server)
+
+  server.add_insecure_port('[::]:50051')
+  server.start()
+  server.wait_for_termination()
 
 if __name__ == '__main__':
-  pipeline()
+  serve()

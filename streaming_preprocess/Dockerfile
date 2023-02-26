@@ -4,15 +4,12 @@ RUN mkdir -p /usr/local/app
 WORKDIR /usr/local/app
 
 RUN apk update && \
-    apk add nodejs-lts npm && \
+    apk add bash nodejs-lts npm && \
     npm install -g pm2 yarn
 
 COPY package.json yarn.lock ./
 RUN yarn
 
 COPY . .
-RUN yarn build
 
-RUN echo "REDIS_HOST=${REDIS_HOST}\nREDIS_PORT=${REDIS_PORT}\nENTRY_CODE=${ENTRY_CODE}" > .env.prod
-
-ENTRYPOINT [ "yarn", "deploy" ]
+ENTRYPOINT [ "sh", "entrypoint.sh"]

@@ -1,0 +1,23 @@
+syntax = "proto3";
+
+package result;
+
+message InferenceResult {
+  repeated LandmarkResult face = 1;
+  repeated LandmarkResult left_hand = 2;
+  repeated LandmarkResult right_hand = 3;
+  repeated LandmarkVisibilityResult pose = 4;
+}
+
+message LandmarkResult {
+  float x = 1;
+  float y = 2;
+  float z = 3;
+}
+
+message LandmarkVisibilityResult {
+  float x = 1;
+  float y = 2;
+  float z = 3;
+  float visibility = 4;
+}
