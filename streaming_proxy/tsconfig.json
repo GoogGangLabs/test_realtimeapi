@@ -20,8 +20,9 @@
     "paths": {
       "@controller/*": ["./src/controller/*"],
       "@gateway/*": ["./src/gateway/*"],
+      "@service/*": ["./src/service/*"],
       "@domain/*": ["./src/domain/*"],
-      "@generated/*": ["src/generated/*"],
+      "@strategy/*": ["src/strategy/*"],
       "@src/*": ["./src/*"]
     }
   }

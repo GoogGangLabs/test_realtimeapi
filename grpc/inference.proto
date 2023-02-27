@@ -14,7 +14,8 @@ message StreamRequest {
   uint64 startedAt = 3;
   repeated uint64 timestamp = 4;
   repeated int32 step = 5;
-  bytes image = 6;
+  repeated int32 dataSize = 6;
+  bytes image = 7;
 }
 
 message InferenceResponse {
@@ -23,5 +24,6 @@ message InferenceResponse {
   uint64 startedAt = 3;
   repeated uint64 timestamp = 4;
   repeated int32 step = 5;
-  result.InferenceResult result = 6;
+  repeated int32 dataSize = 6;
+  result.InferenceResult result = 7;
 }

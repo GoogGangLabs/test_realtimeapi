@@ -4,6 +4,8 @@ import * as redisStore from 'cache-manager-ioredis';
 
 import ViewController from '@controller/view.controller';
 import AuthController from '@controller/auth.controller';
+import LatencyController from '@controller/latency.controller';
+import LatencyService from '@service/latency.service';
 
 @Module({
   imports: [
@@ -18,7 +20,8 @@ import AuthController from '@controller/auth.controller';
       }),
     }),
   ],
-  controllers: [ViewController, AuthController],
+  providers: [LatencyService],
+  controllers: [ViewController, AuthController, LatencyController],
 })
 class ControllerModule {}
 

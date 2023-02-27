@@ -4,6 +4,7 @@ import { path } from 'app-root-path';
 
 import ControllerModule from '@controller/controller.module';
 import GatewayModule from '@gateway/gateway.module';
+import ServiceModule from '@service/service.module';
 
 @Module({
   imports: [
@@ -13,6 +14,7 @@ import GatewayModule from '@gateway/gateway.module';
     }),
     ControllerModule,
     GatewayModule,
+    ServiceModule,
   ],
 })
 class AppModule {}

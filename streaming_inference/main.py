@@ -99,6 +99,7 @@ class Inference(inference_pb2_grpc.InferenceServicer):
       startedAt=request.startedAt,
       timestamp=request.timestamp,
       step=request.step,
+      dataSize=request.dataSize,
       result=inferenceResult
     )
 

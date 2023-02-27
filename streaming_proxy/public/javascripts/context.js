@@ -23,17 +23,23 @@ const socket = {
 
 const latencyChecker = {
   input: [],
-  messageQueue: [],
+  grpc: [],
   inference: [],
   output: [],
-  client: []
+  client: [],
+}
+
+const dataSizeChecker = {
+  input: [],
+  output: [],
 }
 
 const videoInfo = {
   sequence: 0,
   startedAt: 0,
   fps: [],
-  latency: latencyChecker
+  latency: latencyChecker,
+  dataSize: dataSizeChecker
 }
 
 const fixedFPS = 30;
