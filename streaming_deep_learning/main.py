@@ -18,7 +18,7 @@ import inference_pb2_grpc
 
 mp_holistic = mp.solutions.holistic
 
-def get_landmark_list(landmarks, temp):
+def get_landmark_list(landmarks):
   landmark_list = []
 
   if landmarks is None:
@@ -30,11 +30,11 @@ def get_landmark_list(landmarks, temp):
     element.y = landmark.y
     element.z = landmark.z
 
-    temp.append(element)
+    landmark_list.append(element)
 
   return landmark_list
 
-def get_landmark_visibility_list(landmarks, temp):
+def get_landmark_visibility_list(landmarks):
   landmark_list = []
 
   if landmarks is None:
@@ -47,7 +47,7 @@ def get_landmark_visibility_list(landmarks, temp):
     element.z = landmark.z
     element.visibility = landmark.visibility
 
-    temp.append(element)
+    landmark_list.append(element)
 
   return landmark_list
 
@@ -60,7 +60,7 @@ class Inference(inference_pb2_grpc.InferenceServicer):
 
   holistic = mp_holistic.Holistic(min_detection_confidence=0.5, min_tracking_confidence=0.5)
 
-  def InputStream(self, request: inference_pb2.StreamRequest, context) -> inference_pb2.InferenceResponse:
+  def InputStream(self, request: inference_pb2.StreamRequest, _) -> inference_pb2.InferenceResponse:
 
     checkTime(request.timestamp, request.step)
 
@@ -75,13 +75,12 @@ class Inference(inference_pb2_grpc.InferenceServicer):
     end2 = time.time() - start
 
     start = time.time()
-    inferenceResult = result_pb2.InferenceResult()
-
-    get_landmark_list(result.face_landmarks, inferenceResult.face),
-    get_landmark_list(result.left_hand_landmarks, inferenceResult.left_hand),
-    get_landmark_list(result.right_hand_landmarks, inferenceResult.right_hand),
-    get_landmark_visibility_list(result.pose_landmarks, inferenceResult.pose)
-    
+    inferenceResult = result_pb2.InferenceResult(
+      face=get_landmark_list(result.face_landmarks),
+      left_hand=get_landmark_list(result.left_hand_landmarks),
+      right_hand=get_landmark_list(result.right_hand_landmarks),
+      pose=get_landmark_visibility_list(result.pose_landmarks)
+    )
     end3 = time.time() - start
     print(f"{request.sequence} - 복원: {math.floor(end1 * 1000)}ms, 추론: {math.floor(end2 * 1000)}ms, 취합: {math.floor(end3 * 1000)}ms")
 
@@ -97,7 +96,7 @@ class Inference(inference_pb2_grpc.InferenceServicer):
     )
 
 def serve():
-  server = grpc.server(futures.ThreadPoolExecutor(max_workers=20))
+  server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))
   inference_pb2_grpc.add_InferenceServicer_to_server(Inference(), server)
 
   server.add_insecure_port('[::]:50051')
