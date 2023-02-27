@@ -89,6 +89,7 @@ class StreamGateway implements OnGatewayConnection, OnGatewayDisconnect {
             left_hand: response.result.leftHandList,
             right_hand: response.result.rightHandList,
             pose: response.result.poseList,
+            pose_world: response.result.poseWorldList
           },
           fps: fps
         });

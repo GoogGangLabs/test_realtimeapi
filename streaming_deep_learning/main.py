@@ -58,7 +58,13 @@ def checkTime(timestamp, step):
 
 class Inference(inference_pb2_grpc.InferenceServicer):
 
-  holistic = mp_holistic.Holistic(min_detection_confidence=0.5, min_tracking_confidence=0.5)
+  holistic = mp_holistic.Holistic(
+    model_complexity=True,
+    smooth_landmarks=True,
+    min_detection_confidence=0.7,
+    min_tracking_confidence=0.7,
+    refine_face_landmarks=True
+  )
 
   def InputStream(self, request: inference_pb2.StreamRequest, _) -> inference_pb2.InferenceResponse:
 
@@ -79,7 +85,8 @@ class Inference(inference_pb2_grpc.InferenceServicer):
       face=get_landmark_list(result.face_landmarks),
       left_hand=get_landmark_list(result.left_hand_landmarks),
       right_hand=get_landmark_list(result.right_hand_landmarks),
-      pose=get_landmark_visibility_list(result.pose_landmarks)
+      pose=get_landmark_visibility_list(result.pose_landmarks),
+      pose_world=get_landmark_visibility_list(result.pose_world_landmarks)
     )
     end3 = time.time() - start
     print(f"{request.sequence} - 복원: {math.floor(end1 * 1000)}ms, 추론: {math.floor(end2 * 1000)}ms, 취합: {math.floor(end3 * 1000)}ms")

@@ -11,11 +11,12 @@ const bootstrap = async () => {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
   const port = process.env.PORT || 3000;
 
+  app.enableCors({ origin: '*', credentials: true })
   app.use(cookieParser());
   app.useGlobalPipes(new ValidationPipe());
   app.useStaticAssets(`${path}/public`);
   app.setBaseViewsDir(`${path}/public`);
-  app.setViewEngine('ejs');
+  app.setViewEngine('html');
 
   await app.listen(port, () => {
     console.log(`=== ENV: ${process.env.NODE_ENV}`);
