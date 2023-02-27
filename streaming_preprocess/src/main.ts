@@ -11,6 +11,7 @@ const bootstrap = async () => {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
   const port = process.env.PORT || 3000;
 
+  app.enableCors({ origin: '*', credentials: true })
   app.use(cookieParser());
   app.useGlobalPipes(new ValidationPipe());
   app.useStaticAssets(`${path}/public`);
