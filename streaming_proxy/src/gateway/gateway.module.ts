@@ -3,6 +3,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import * as redisStore from 'cache-manager-ioredis';
 
 import StreamGateway from '@gateway/stream.gateway';
+import GrpcService from '@service/grpc.service';
 
 @Module({
   imports: [
@@ -16,7 +17,7 @@ import StreamGateway from '@gateway/stream.gateway';
       }),
     }),
   ],
-  providers: [StreamGateway],
+  providers: [StreamGateway, GrpcService],
 })
 class GatewayModule {}
 
