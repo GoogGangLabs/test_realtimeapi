@@ -253,7 +253,7 @@ const animateVRM = (vrm, results) => {
 const videoElement = document.querySelector(".input_video"),
     guideCanvas = document.querySelector("canvas.guides");
 
-const drawResults = (base64Data, results) => {
+const drawResults = (results) => {
     guideCanvas.width = videoElement.videoWidth;
     guideCanvas.height = videoElement.videoHeight;
     let canvasCtx = guideCanvas.getContext("2d");
@@ -330,7 +330,7 @@ const handleFrame = () => {
     timestamp.push(Date.now());
   
     videoInfo.sequence++;
-    bufferQueue.push(videoInfo.sequence, base64);
+    // bufferQueue.push(videoInfo.sequence, base64);
     console.log(checkFrameTime(timestamp, Date.now()));
     console.log(`${((base64.length - compressedData.length) / base64.length * 100).toFixed(2)}% 압축: ${base64.length} > ${compressedData.length}`)
     socket.io.emit('client:preprocess:stream', { sequence: videoInfo.sequence, frame: compressedData, timestamp: timestamp[0] });
@@ -371,26 +371,34 @@ const stopVideo = () => {
   
     videoElement.srcObject.getTracks()[0].stop();
     videoElement.srcObject = null;
-    const host = `${window.location.protocol}//${window.location.host.split(':')[0]}`;
+    const getPositiveValue = (num) => num > 0 ? num : 0;
     const calculateLatency = (name, list) => {
-      const max = Math.max(...list);
-      const min = Math.min(...list);
-      const avg = (list.reduce((a, b) => a + b, 0) / list.length).toFixed(2);
-      return `${name} - 평균: ${avg}ms, 최소: ${min}ms, 최대: ${max}ms`;
+        const validList = [...list].map(e => getPositiveValue(e));
+        const max = Math.max(...validList);
+        const min = Math.min(...validList);
+        const avg = (validList.reduce((a, b) => a + b, 0) / validList.length).toFixed(2);
+        return `${name} - 평균: ${avg}ms, 최소: ${min}ms, 최대: ${max}ms`;
     }
     const totalLatency = () => {
-      const latency = videoInfo.latency;
-      const total = Array.from({ length: latency.client.length }, (_, idx) => (latency.input[idx] + latency.messageQueue[idx] + latency.inference[idx] + latency.output[idx] + latency.client[idx]));
-      const max = Math.max(...total);
-      const min = Math.min(...total);
-      const avg = (total.reduce((a, b) => a + b, 0) / total.length).toFixed(2);
-      return `Latency - 평균: ${avg}ms, 최소: ${min}ms, 최대: ${max}ms`;
+        const latency = videoInfo.latency;
+        const total = Array.from({ length: latency.client.length }, (_, idx) => (getPositiveValue(latency.input[idx]) + getPositiveValue(latency.messageQueue[idx]) + getPositiveValue(latency.inference[idx]) + getPositiveValue(latency.output[idx]) + getPositiveValue(latency.client[idx])));
+        const max = Math.max(...total);
+        const min = Math.min(...total);
+        const avg = (total.reduce((a, b) => a + b, 0) / total.length).toFixed(2);
+        return `Latency - 평균: ${avg}ms, 최소: ${min}ms, 최대: ${max}ms`;
     }
-  
+    const calculateFPS = () => {
+        const fps = [...videoInfo.fps].filter(e => e > 0);
+        const max = Math.max(...fps);
+        const min = Math.min(...fps);
+        const avg = (fps.reduce((a, b) => a + b, 0) / fps.length).toFixed(2);
+        return `FPS - 평균: ${avg}fps, 최소: ${min}fps, 최대: ${max}fps`;
+    }
+
     if (!videoInfo.fps.length) return;
-  
+
     axios.post(`${socket.host}/auth/slack`, {
-        text: `Latency 테스트 - ${videoInfo.startedAt}\n총 테스트 시간 - ${(Date.now() - videoInfo.startedAt) / 1000}초\n처리된 Frame - ${videoInfo.latency.output.length}개\n설정한 FPS - ${fixedFPS}\n처리된 FPS - 평균: ${(videoInfo.fps.reduce((a, b) => a + b, 0) / videoInfo.fps.length).toFixed(2)}, 최소: ${Math.min(...videoInfo.fps)}, 최대: ${Math.max(...videoInfo.fps)}\n${totalLatency()}\n\n\n${calculateLatency("1️⃣", videoInfo.latency.input)}\n${calculateLatency("2️⃣", videoInfo.latency.messageQueue)}\n${calculateLatency("3️⃣", videoInfo.latency.inference)}\n${calculateLatency("4️⃣", videoInfo.latency.output)}\n${calculateLatency("5️⃣", videoInfo.latency.client)}\n\n==========================================\n\n`
+        text: `Latency 테스트 - ${videoInfo.startedAt}\n총 테스트 시간 - ${(Date.now() - videoInfo.startedAt) / 1000}초\n처리된 Frame - ${videoInfo.latency.output.length}개\n${calculateFPS()}\n${totalLatency()}\n\n\n${calculateLatency("1️⃣", videoInfo.latency.input)}\n${calculateLatency("2️⃣", videoInfo.latency.messageQueue)}\n${calculateLatency("3️⃣", videoInfo.latency.inference)}\n${calculateLatency("4️⃣", videoInfo.latency.output)}\n${calculateLatency("5️⃣", videoInfo.latency.client)}\n\n==========================================\n\n`
     })
   
 };
@@ -419,7 +427,7 @@ const streamPreProcessOn = () => {
         checkLatency(data.step, data.fps);
         console.log(data);
     
-        const base64Data = bufferQueue.pop(data.sequence);
+        // const base64Data = bufferQueue.pop(data.sequence);
         const results = data.result;
         const fps = data.fps;
         const latency = clientTime - data.startedAt;
@@ -427,7 +435,7 @@ const streamPreProcessOn = () => {
 
         log.innerHTML = `${fps}fps, ${latency}ms`;
 
-        drawResults(base64Data, results);
+        drawResults(results);
         // Animate model
         animateVRM(currentVrm, results);
     })
