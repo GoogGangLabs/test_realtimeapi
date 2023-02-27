@@ -1,8 +1,8 @@
 import Vector from "../utils/vector.js";
 import Euler from "../utils/euler.js";
 import { clamp } from "../utils/helpers.js";
-import { RIGHT, LEFT } from "./../constants.js";
-import { PI } from "./../constants.js";
+import { RIGHT, LEFT } from "../constants.js";
+import { PI } from "../constants.js";
 export const offsets = {
     upperLeg: {
         z: 0.1,

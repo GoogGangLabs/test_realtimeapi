@@ -1,6 +1,6 @@
 import Vector from "../utils/vector.js";
 import { clamp, remap } from "../utils/helpers.js";
-import { RIGHT, LEFT } from "./../constants.js";
+import { RIGHT, LEFT } from "../constants.js";
 /**
  * Landmark points labeled for eye, brow, and pupils
  */

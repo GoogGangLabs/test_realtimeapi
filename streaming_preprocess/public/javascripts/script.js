@@ -447,7 +447,7 @@ const connectStreamPreProcess = () => {
 };
   
 export const initialHostSetting = async () => {
-    const host = `https://goodganglabs.xyz`;
+    const host = `${window.location.protocol}//${window.location.host.split(':')[0]}`;
 
     socket.host = host;
     connectStreamPreProcess();

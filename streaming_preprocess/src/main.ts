@@ -16,7 +16,7 @@ const bootstrap = async () => {
   app.useGlobalPipes(new ValidationPipe());
   app.useStaticAssets(`${path}/public`);
   app.setBaseViewsDir(`${path}/public`);
-  app.setViewEngine('ejs');
+  app.setViewEngine('html');
 
   await app.listen(port, () => {
     console.log(`=== ENV: ${process.env.NODE_ENV}`);

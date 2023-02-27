@@ -1,7 +1,7 @@
 import Vector from "../utils/vector.js";
 import { clamp } from "../utils/helpers.js";
-import { RIGHT, LEFT } from "./../constants.js";
-import { PI } from "./../constants.js";
+import { RIGHT, LEFT } from "../constants.js";
+import { PI } from "../constants.js";
 /**
  * Calculates arm rotation as euler angles
  * @param {Array} lm : array of 3D pose vectors from tfjs or mediapipe

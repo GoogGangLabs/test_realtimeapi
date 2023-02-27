@@ -1,12 +1,10 @@
-import { Results } from "../Types";
-import Vector from "../utils/vector";
-import { PI } from "./../constants";
-
+import Vector from "../utils/vector.js";
+import { PI } from "../constants.js";
 /**
  * Calculate stable plane (triangle) from 4 face landmarks
  * @param {Array} lm : array of results from tfjs or mediapipe
  */
-export const createEulerPlane = (lm: Results) => {
+export const createEulerPlane = (lm) => {
     //create face detection square bounds
     const p1 = new Vector(lm[21]); //top left
     const p2 = new Vector(lm[251]); //top right
@@ -18,12 +16,11 @@ export const createEulerPlane = (lm: Results) => {
         points: [p1, p2, p3, p4],
     };
 };
-
 /**
  * Calculate roll, pitch, yaw, centerpoint, and rough dimentions of face plane
  * @param {Array} lm : array of results from tfjs or mediapipe
  */
-export const calcHead = (lm: Results) => {
+export const calcHead = (lm) => {
     // find 3 vectors that form a plane to represent the head
     const plane = createEulerPlane(lm).vector;
     // calculate roll pitch and yaw from vectors
@@ -36,12 +33,11 @@ export const calcHead = (lm: Results) => {
     //flip
     rotate.x *= -1;
     rotate.z *= -1;
-
     return {
         //defaults to radians for rotation around x,y,z axis
-        y: rotate.y * PI, //left right
-        x: rotate.x * PI, //up down
-        z: rotate.z * PI, //side to side
+        y: rotate.y * PI,
+        x: rotate.x * PI,
+        z: rotate.z * PI,
         width: width,
         height: height,
         //center of face detection square
