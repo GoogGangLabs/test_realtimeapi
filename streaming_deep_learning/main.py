@@ -59,7 +59,10 @@ def checkTime(timestamp, step):
 class Inference(inference_pb2_grpc.InferenceServicer):
 
   holistic = mp_holistic.Holistic(
-    min_tracking_confidence=0.2,
+    model_complexity=True,
+    smooth_landmarks=True,
+    min_detection_confidence=0.7,
+    min_tracking_confidence=0.7,
     refine_face_landmarks=True
   )
 
