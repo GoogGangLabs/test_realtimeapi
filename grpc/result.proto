@@ -7,6 +7,7 @@ message InferenceResult {
   repeated LandmarkResult left_hand = 2;
   repeated LandmarkResult right_hand = 3;
   repeated LandmarkVisibilityResult pose = 4;
+  repeated LandmarkVisibilityResult pose_world = 5;
 }
 
 message LandmarkResult {
