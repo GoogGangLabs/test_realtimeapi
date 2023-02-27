@@ -1,32 +1,42 @@
 class BufferQueue {
   _list = [];
 
-  push(buffer) {
-    this._list.push([buffer, Date.now()]);
+  firstSequence() {
+    return this._list[0].sequence;
   }
 
-  pop(sequence, fps) {
-    const [buffer, start] = this._list.shift();
-    console.log(`${sequence}: ${fps}fps, ${Date.now() - start}ms`);
-    return buffer;
+  push(sequence, buffer) {
+    this._list.push({ sequence, buffer });
+  }
+
+  pop(sequence) {
+    for (let bufferSequence = this.firstSequence(); bufferSequence !== sequence;)
+      this._list.shift();
+    return this._list.shift().buffer;
   }
 }
 
-const socketHost = {
-  preprocess: undefined,
-  postprocess: undefined,
-};
-
-const socketPath = {
-  preprocess: undefined,
-  postprocess: undefined,
-};
-
 const socket = {
-  preProcess: undefined,
-  postProcess: undefined,
-};
+  io: undefined,
+  host: undefined,
+}
 
+const latencyChecker = {
+  input: [],
+  messageQueue: [],
+  inference: [],
+  output: [],
+  client: []
+}
+
+const videoInfo = {
+  sequence: 0,
+  startedAt: 0,
+  fps: [],
+  latency: latencyChecker
+}
+
+const fixedFPS = 10;
 const bufferQueue = new BufferQueue();
 const sessionId = document.cookie
   ? document.cookie
@@ -36,4 +46,4 @@ const sessionId = document.cookie
   : '';
 
 
-export { socketHost, socketPath, socket, bufferQueue, sessionId };
+export { socket, bufferQueue, sessionId, videoInfo, fixedFPS };

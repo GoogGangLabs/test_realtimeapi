@@ -1,5 +1,5 @@
-import * as Kalidokit from "../dist";
-import { socket, socketPath, socketHost, bufferQueue, sessionId } from './context.js';
+import * as Kalidokit from "../dist/index.js";
+import { socket, videoInfo, bufferQueue, sessionId, fixedFPS } from './context.js';
 //Import Helper Functions from Kalidokit
 const remap = Kalidokit.Utils.remap;
 const clamp = Kalidokit.Utils.clamp;
@@ -253,7 +253,7 @@ const animateVRM = (vrm, results) => {
 const videoElement = document.querySelector(".input_video"),
     guideCanvas = document.querySelector("canvas.guides");
 
-const drawResults = (results) => {
+const drawResults = (base64Data, results) => {
     guideCanvas.width = videoElement.videoWidth;
     guideCanvas.height = videoElement.videoHeight;
     let canvasCtx = guideCanvas.getContext("2d");
@@ -297,128 +297,151 @@ const drawResults = (results) => {
     });
 };
 
-// Use `Mediapipe` utils to get camera - lower resolution = higher fps
-// const camera = new Camera(videoElement, {
-//     onFrame: async () => {
-//         await holistic.send({ image: videoElement });
-//     },
-//     width: 640,
-//     height: 480,
-// });
-
 let flag = false;
-let sequence = 0;
 const bufferCanvas = document.getElementById('buffer-canvas');
 const bufferContext = bufferCanvas.getContext('2d');
 bufferCanvas.width = 640;
 bufferCanvas.height = 480;
 
+const checkFrameTime = (timestamp, currTime) => {
+    const sub = [];
+  
+    for (let i = 0; i < timestamp.length - 1; i++) {
+        sub.push(timestamp[i + 1] - timestamp[i]);
+    }
+  
+    return `총 시간: ${currTime - timestamp[0]}, 이미지 추출: ${sub[0]}, Base64 인코딩: ${sub[1]}, Base64 이미지 추출: ${sub[2]}, 이미지 압축: ${sub[3]}`;
+}
+
 const handleFrame = () => {
     if (!flag) return;
   
+    const timestamp = [Date.now()];
     bufferContext.drawImage(videoElement, 0, 0, bufferCanvas.width, bufferCanvas.height);
-    // const base64 = bufferCanvas.toDataURL('image/jpeg', 0.3).split(',')[1]
-
-    bufferCanvas.toBlob(async (blob) => {
-        if (blob.size <= 100000) return;
-        // const image = await blob.arrayBuffer();
-        //   const base64 = image.toString('base64');
-        sequence++;
-        console.log(`${sequence} - ${blob}`)
-        socket.preProcess.emit('client:preprocess:stream', { sequence: sequence, frame: blob, timestamp: Date.now() });
-    }, 'image/png', 1);
+    timestamp.push(Date.now());
+    const base64 = bufferCanvas.toDataURL('image/jpeg', 0.3);
+    timestamp.push(Date.now());
+    
+    if (base64.length <= 5000) return;
+    
+    const imageData = base64.split(',')[1];
+    timestamp.push(Date.now());
+    const compressedData = pako.deflate(imageData, { level: 9 });
+    timestamp.push(Date.now());
   
-  }
+    videoInfo.sequence++;
+    bufferQueue.push(videoInfo.sequence, base64);
+    console.log(checkFrameTime(timestamp, Date.now()));
+    console.log(`${((base64.length - compressedData.length) / base64.length * 100).toFixed(2)}% 압축: ${base64.length} > ${compressedData.length}`)
+    socket.io.emit('client:preprocess:stream', { sequence: videoInfo.sequence, frame: compressedData, timestamp: timestamp[0] });
+}
+
 
 const loadVideo = async () => {
     if (flag) return;
     
     flag = true;
+  
+    videoInfo.sequence = 0;
+    videoInfo.startedAt = new Date();
+    videoInfo.fps = [];
+    for (const key in videoInfo.latency) {
+      videoInfo.latency[key] = [];
+    }
 
     navigator.mediaDevices.getUserMedia({ video: { width: 640, height: 480, frameRate: { ideal: 60, max: 60 } } })
-    .then((stream) => {
-        videoElement.srcObject = stream;
-        videoElement.play();
-  
-        const cameraInterval = setInterval(() => {
-            if (!flag) {
-                clearInterval(cameraInterval);
-                return;
-            }
-            handleFrame();
-        }, 1000 / 10);
-    })
-    .catch((error) => {
-    console.log(error);
-    })
-};
+        .then((stream) => {
+            videoElement.srcObject = stream;
+            videoElement.play();
+    
+            const cameraInterval = setInterval(() => {
+                if (!flag) return clearInterval(cameraInterval);
+                handleFrame();
+            }, 1000 / fixedFPS);
+        })
+        .catch((error) => {
+            console.log(error);
+        })
+  };
 
 const stopVideo = () => {
     if (!flag) return;
-    
+  
     flag = false;
-    
+  
+    videoElement.srcObject.getTracks()[0].stop();
     videoElement.srcObject = null;
+    const host = `${window.location.protocol}//${window.location.host.split(':')[0]}`;
+    const calculateLatency = (name, list) => {
+      const max = Math.max(...list);
+      const min = Math.min(...list);
+      const avg = (list.reduce((a, b) => a + b, 0) / list.length).toFixed(2);
+      return `${name} - 평균: ${avg}ms, 최소: ${min}ms, 최대: ${max}ms`;
+    }
+    const totalLatency = () => {
+      const latency = videoInfo.latency;
+      const total = Array.from({ length: latency.client.length }, (_, idx) => (latency.input[idx] + latency.messageQueue[idx] + latency.inference[idx] + latency.output[idx] + latency.client[idx]));
+      const max = Math.max(...total);
+      const min = Math.min(...total);
+      const avg = (total.reduce((a, b) => a + b, 0) / total.length).toFixed(2);
+      return `Latency - 평균: ${avg}ms, 최소: ${min}ms, 최대: ${max}ms`;
+    }
+  
+    if (!videoInfo.fps.length) return;
+  
+    axios.post(`${socket.host}/auth/slack`, {
+        text: `Latency 테스트 - ${videoInfo.startedAt}\n총 테스트 시간 - ${(Date.now() - videoInfo.startedAt) / 1000}초\n처리된 Frame - ${videoInfo.latency.output.length}개\n설정한 FPS - ${fixedFPS}\n처리된 FPS - 평균: ${(videoInfo.fps.reduce((a, b) => a + b, 0) / videoInfo.fps.length).toFixed(2)}, 최소: ${Math.min(...videoInfo.fps)}, 최대: ${Math.max(...videoInfo.fps)}\n${totalLatency()}\n\n\n${calculateLatency("1️⃣", videoInfo.latency.input)}\n${calculateLatency("2️⃣", videoInfo.latency.messageQueue)}\n${calculateLatency("3️⃣", videoInfo.latency.inference)}\n${calculateLatency("4️⃣", videoInfo.latency.output)}\n${calculateLatency("5️⃣", videoInfo.latency.client)}\n\n==========================================\n\n`
+    })
+  
 };
 
-const streamPreProcessOn = () => {
-    socket.preProcess.on('server:preprocess:connection', () => {
-      connectStreamPostProcess();
-    });
-  
-    socket.preProcess.on('server:preprocess:error', (message) => {
-      window.location.href = '/entrypoint';
-      alert(message);
-    });
-  };
-  
-const streamPostProcessOn = () => {
-    socket.postProcess.on('server:postprocess:error', (message) => {
-      window.location.href = '/entrypoint';
-      alert(message);
-    });
-  
-    socket.postProcess.on('server:postprocess:stream', (data) => {
-        const results = data.results;
-        const fps = data.fps;
-        const timestamp = data.timestamp;
+const checkLatency = (step, fps) => {
+    videoInfo.latency.input.push(step[0]);
+    videoInfo.latency.messageQueue.push(step[1]);
+    videoInfo.latency.inference.push(step[2]);
+    videoInfo.latency.output.push(step[3]);
+    videoInfo.latency.client.push(step[4]);
+    videoInfo.fps.push(fps);
+}
 
+const streamPreProcessOn = () => {
+    socket.io.on('server:preprocess:connection', () => {});
+  
+    socket.io.on('server:preprocess:error', (message) => {
+      window.location.href = '/entrypoint';
+      alert(message);
+    });
+
+    socket.io.on('server:postprocess:stream', (data) => {
+        const clientTime = Date.now();
+        data.step.push(clientTime - data.timestamp[data.timestamp.length - 1]);
+        data.timestamp.push(clientTime);
+        checkLatency(data.step, data.fps);
+        console.log(data);
+    
+        const base64Data = bufferQueue.pop(data.sequence);
+        const results = data.result;
+        const fps = data.fps;
+        const latency = clientTime - data.startedAt;
         const log = document.getElementById('latency-log');
 
-        log.innerHTML = `${fps}fps, ${Date.now() - timestamp}ms`;
-    
-        drawResults(results);
+        log.innerHTML = `${fps}fps, ${latency}ms`;
+
+        drawResults(base64Data, results);
         // Animate model
         animateVRM(currentVrm, results);
     })
 };
-  
-const connectStreamPostProcess = () => {
-    socket.postProcess = io(socketHost.postprocess, { path: socketPath.postprocess, extraHeaders: { sessionId } });
-    streamPostProcessOn();
-};
-  
+
 const connectStreamPreProcess = () => {
-    socket.preProcess = io(socketHost.preprocess, { path: socketPath.preprocess, extraHeaders: { sessionId } });
+    socket.io = io(socket.host, { path: '/preprocess', extraHeaders: { sessionId } });
     streamPreProcessOn();
 };
   
 export const initialHostSetting = async () => {
-    const host = `${window.location.protocol}//${window.location.host.split(':')[0]}`;
+    const host = `https://goodganglabs.xyz`;
 
-    // axios.defaults.withCredentials = true;
-    // await axios
-    //     .post(`${host}/auth/code`, { code: 'goodganglabs1234' })
-    //     .then(() => {})
-    //     .catch((error) => {
-    //     alert(error.response.data.message);
-    // });
-
-    socketHost.preprocess = `${host}`;
-    socketHost.postprocess = `${host}`;
-    socketPath.preprocess = '/preprocess';
-    socketPath.postprocess = '/postprocess';
-  
+    socket.host = host;
     connectStreamPreProcess();
 };
 
