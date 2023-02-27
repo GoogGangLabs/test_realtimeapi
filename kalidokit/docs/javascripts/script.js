@@ -1,4 +1,4 @@
-import * as Kalidokit from "../dist/index.js";
+import * as Kalidokit from "./kalidokit/index.js";
 import { socket, videoInfo, bufferQueue, sessionId, fixedFPS } from './context.js';
 //Import Helper Functions from Kalidokit
 const remap = Kalidokit.Utils.remap;
@@ -150,7 +150,7 @@ const animateVRM = (vrm, results) => {
 
     const faceLandmarks = results.face.length ? results.face : undefined;
     // Pose 3D Landmarks are with respect to Hip distance in meters
-    const pose3DLandmarks = undefined;
+    const pose3DLandmarks = results.pose_world.length ? results.pose_world : undefined;
     // Pose 2D landmarks are with respect to videoWidth and videoHeight
     const pose2DLandmarks = results.pose.length ? results.pose : undefined;
     // Be careful, hand landmarks may be reversed
@@ -331,8 +331,8 @@ const handleFrame = () => {
   
     videoInfo.sequence++;
     // bufferQueue.push(videoInfo.sequence, base64);
-    console.log(checkFrameTime(timestamp, Date.now()));
-    console.log(`${((base64.length - compressedData.length) / base64.length * 100).toFixed(2)}% 압축: ${base64.length} > ${compressedData.length}`)
+    // console.log(checkFrameTime(timestamp, Date.now()));
+    // console.log(`${((base64.length - compressedData.length) / base64.length * 100).toFixed(2)}% 압축: ${base64.length} > ${compressedData.length}`)
     socket.io.emit('client:preprocess:stream', { sequence: videoInfo.sequence, frame: compressedData, timestamp: timestamp[0] });
 }
 
@@ -397,9 +397,9 @@ const stopVideo = () => {
 
     if (!videoInfo.fps.length) return;
 
-    axios.post(`${socket.host}/auth/slack`, {
-        text: `Latency 테스트 - ${videoInfo.startedAt}\n총 테스트 시간 - ${(Date.now() - videoInfo.startedAt) / 1000}초\n처리된 Frame - ${videoInfo.latency.output.length}개\n${calculateFPS()}\n${totalLatency()}\n\n\n${calculateLatency("1️⃣", videoInfo.latency.input)}\n${calculateLatency("2️⃣", videoInfo.latency.messageQueue)}\n${calculateLatency("3️⃣", videoInfo.latency.inference)}\n${calculateLatency("4️⃣", videoInfo.latency.output)}\n${calculateLatency("5️⃣", videoInfo.latency.client)}\n\n==========================================\n\n`
-    })
+    // axios.post(`${socket.host}/auth/slack`, {
+    //     text: `Latency 테스트 - ${videoInfo.startedAt}\n총 테스트 시간 - ${(Date.now() - videoInfo.startedAt) / 1000}초\n처리된 Frame - ${videoInfo.latency.output.length}개\n${calculateFPS()}\n${totalLatency()}\n\n\n${calculateLatency("1️⃣", videoInfo.latency.input)}\n${calculateLatency("2️⃣", videoInfo.latency.messageQueue)}\n${calculateLatency("3️⃣", videoInfo.latency.inference)}\n${calculateLatency("4️⃣", videoInfo.latency.output)}\n${calculateLatency("5️⃣", videoInfo.latency.client)}\n\n==========================================\n\n`
+    // })
   
 };
 
@@ -422,10 +422,11 @@ const streamPreProcessOn = () => {
 
     socket.io.on('server:postprocess:stream', (data) => {
         const clientTime = Date.now();
+        console.log(clientTime - data.startedAt);
         data.step.push(clientTime - data.timestamp[data.timestamp.length - 1]);
         data.timestamp.push(clientTime);
         checkLatency(data.step, data.fps);
-        console.log(data);
+        // console.log(data);
     
         // const base64Data = bufferQueue.pop(data.sequence);
         const results = data.result;
@@ -436,7 +437,6 @@ const streamPreProcessOn = () => {
         log.innerHTML = `${fps}fps, ${latency}ms`;
 
         drawResults(results);
-        // Animate model
         animateVRM(currentVrm, results);
     })
 };
