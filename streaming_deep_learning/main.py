@@ -60,7 +60,7 @@ class Inference(inference_pb2_grpc.InferenceServicer):
 
   holistic = mp_holistic.Holistic(
     min_tracking_confidence=0.2,
-    refineFaceLandmarks=True
+    refine_face_landmarks=True
   )
 
   def InputStream(self, request: inference_pb2.StreamRequest, _) -> inference_pb2.InferenceResponse:
