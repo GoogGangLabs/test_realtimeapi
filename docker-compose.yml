@@ -1,11 +1,11 @@
 version: "3.8"
 
 services:
-  streaming_preprocess:
-    container_name: streaming_preprocess
+  streaming_proxy:
+    container_name: streaming_proxy
     build:
-      context: streaming_preprocess
-    image: streaming_preprocess
+      context: streaming_proxy
+    image: streaming_proxy
     expose:
       - 3000
       - 4000
@@ -20,11 +20,11 @@ services:
       - .env
     restart: always
 
-  streaming_deep_learning1:
-    container_name: streaming_deep_learning1
+  streaming_inference1:
+    container_name: streaming_inference1
     build:
-      context: streaming_deep_learning
-    image: streaming_deep_learning1
+      context: streaming_inference
+    image: streaming_inference1
     expose:
       - 50051
     networks:
@@ -36,11 +36,11 @@ services:
       - .env
     restart: always
 
-  streaming_deep_learning2:
-    container_name: streaming_deep_learning2
+  streaming_inference2:
+    container_name: streaming_inference2
     build:
-      context: streaming_deep_learning
-    image: streaming_deep_learning2
+      context: streaming_inference
+    image: streaming_inference2
     expose:
       - 50051
     networks:
@@ -52,11 +52,11 @@ services:
       - .env
     restart: always
 
-  streaming_deep_learning3:
-    container_name: streaming_deep_learning3
+  streaming_inference3:
+    container_name: streaming_inference3
     build:
-      context: streaming_deep_learning
-    image: streaming_deep_learning3
+      context: streaming_inference
+    image: streaming_inference3
     expose:
       - 50051
     networks:
@@ -68,11 +68,11 @@ services:
       - .env
     restart: always
   
-  streaming_deep_learning4:
-    container_name: streaming_deep_learning4
+  streaming_inference4:
+    container_name: streaming_inference4
     build:
-      context: streaming_deep_learning
-    image: streaming_deep_learning4
+      context: streaming_inference
+    image: streaming_inference4
     expose:
       - 50051
     networks:
@@ -84,11 +84,11 @@ services:
       - .env
     restart: always
 
-  streaming_deep_learning5:
-    container_name: streaming_deep_learning5
+  streaming_inference5:
+    container_name: streaming_inference5
     build:
-      context: streaming_deep_learning
-    image: streaming_deep_learning5
+      context: streaming_inference
+    image: streaming_inference5
     expose:
       - 50051
     networks:
@@ -119,7 +119,7 @@ services:
       - 80:80
       - 443:80
     depends_on:
-      - streaming_preprocess
+      - streaming_proxy
     networks:
       goodganglabs:
         ipv4_address: ${NGINX_HOST}
