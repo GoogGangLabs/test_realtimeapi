@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <link rel="icon" href="/assets/favicon.ico" />
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>GOOD GANG LABS 😎</title>
+
+    <link href="/css/tag.css" rel="stylesheet" type="text/css" />
+    <link href="/css/style.css" rel="stylesheet" type="text/css" />
+
+    <script type="module" src="/javascript/index.js"></script>
+    <script type="module" src="/javascript/socket.js"></script>
+    <script type="module" src="/javascript/context.js"></script>
+    
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script
+    src="https://cdn.socket.io/4.5.4/socket.io.min.js"
+    integrity="sha384-/KNQL8Nu5gCHLqwqfQjA689Hhoqgi2S84SNUxC3roTe4EhJ9AfLkp8QiQcU8AMzI"
+    crossorigin="anonymous"
+    ></script>
+    <script
+    src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils/drawing_utils.js"
+    crossorigin="anonymous"
+    ></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/holistic/holistic.js" crossorigin="anonymous"></script>
+    <script
+      src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js"
+      crossorigin="anonymous"
+    ></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pako/2.1.0/pako.min.js" integrity="sha512-g2TeAWw5GPnX7z0Kn8nFbYfeHcvAu/tx6d6mrLe/90mkCxO+RcptyYpksUz35EO337F83bZwcmUyHiHamspkfg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    
+    <script type="module">
+      import { initialHostSetting } from './javascript/index.js';
+
+      initialHostSetting('<%= environment %>');
+    </script>
+  </head>
+  <body>
+    <div class="container">
+      <video id="input-video"></video>
+      <canvas id="buffer-canvas"></canvas>
+      <div class="side-bar">
+        <img class="symbol-image" src="./assets/symbol.png" />
+        <div class="origin-container">
+          <canvas id="origin-canvas"></canvas>
+          <div class="button-container">
+            <button id="button-start" class="button-default button-start">Start</button>
+            <button id="button-stop" class="button-default button-end">End</button>
+          </div>
+        </div>
+      </div>
+      <div class="changed-container">
+        <canvas id="changed-canvas"></canvas>
+      </div>
+    </div>
+  </body>
+</html>
