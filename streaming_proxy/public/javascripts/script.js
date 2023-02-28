@@ -141,7 +141,7 @@ const rigFace = (riggedFace) => {
 };
 
 /* VRM Character Animator */
-const animateVRM = (vrm, results) => {
+const animateVRM = async (vrm, results) => {
     if (!vrm) {
         return;
     }
@@ -150,12 +150,12 @@ const animateVRM = (vrm, results) => {
 
     const faceLandmarks = results.face.length ? results.face : undefined;
     // Pose 3D Landmarks are with respect to Hip distance in meters
-    const pose3DLandmarks = results.pose_world.length ? results.pose_world : undefined;
+    const pose3DLandmarks = results.poseWorld.length ? results.poseWorld : undefined;
     // Pose 2D landmarks are with respect to videoWidth and videoHeight
     const pose2DLandmarks = results.pose.length ? results.pose : undefined;
     // Be careful, hand landmarks may be reversed
-    const leftHandLandmarks = results.right_hand.length ? results.right_hand : undefined;
-    const rightHandLandmarks = results.left_hand.length ? results.left_hand : undefined;
+    const leftHandLandmarks = results.rightHand.length ? results.rightHand : undefined;
+    const rightHandLandmarks = results.leftHand.length ? results.leftHand : undefined;
 
     // Animate Face
     if (faceLandmarks) {
@@ -253,7 +253,7 @@ const animateVRM = (vrm, results) => {
 const videoElement = document.querySelector(".input_video"),
     guideCanvas = document.querySelector("canvas.guides");
 
-const drawResults = (results) => {
+const drawResults = async (results) => {
     guideCanvas.width = videoElement.videoWidth;
     guideCanvas.height = videoElement.videoHeight;
     let canvasCtx = guideCanvas.getContext("2d");
@@ -279,19 +279,19 @@ const drawResults = (results) => {
             lineWidth: 2,
         });
     }
-    drawConnectors(canvasCtx, results.left_hand, HAND_CONNECTIONS, {
+    drawConnectors(canvasCtx, results.leftHand, HAND_CONNECTIONS, {
         color: "#eb1064",
         lineWidth: 5,
     });
-    drawLandmarks(canvasCtx, results.left_hand, {
+    drawLandmarks(canvasCtx, results.leftHand, {
         color: "#00cff7",
         lineWidth: 2,
     });
-    drawConnectors(canvasCtx, results.right_hand, HAND_CONNECTIONS, {
+    drawConnectors(canvasCtx, results.rightHand, HAND_CONNECTIONS, {
         color: "#22c3e3",
         lineWidth: 5,
     });
-    drawLandmarks(canvasCtx, results.right_hand, {
+    drawLandmarks(canvasCtx, results.rightHand, {
         color: "#ff0364",
         lineWidth: 2,
     });
@@ -378,10 +378,10 @@ const stopVideo = () => {
  
     if (!videoInfo.fps.length) return;
 
-    axios.post(`${socket.host}/auth/slack`, {
+    axios.post(`${socket.host}/latency/slack`, {
         startedAt: videoInfo.startedAt,
-        totalLatency: Date.now() - startedAt,
-        fixedFPS: videoInfo.fixedFPS,
+        totalLatency: Date.now() - videoInfo.startedAt,
+        fixedFps: fixedFPS,
         fpsList: videoInfo.fps,
         latencyInfo: {
             input: videoInfo.latency.input,
@@ -392,15 +392,13 @@ const stopVideo = () => {
         },
         dataSizeInfo: {
             input: videoInfo.dataSize.input,
-            grpc: videoInfo.dataSize.grpc,
             output: videoInfo.dataSize.output,
-            client: videoInfo.dataSize.client,
         }
     })
   
 };
 
-const checkLatency = (step, dataSize, fps) => {
+const checkLatency = (step, dataSize, fps, endedAt) => {
     videoInfo.latency.input.push(step[0]);
     videoInfo.latency.grpc.push(step[1]);
     videoInfo.latency.inference.push(step[2]);
@@ -420,19 +418,21 @@ const streamPreProcessOn = () => {
     });
 
     socket.io.on('server:postprocess:stream', (data) => {
+        const dataSize = data.byteLength;
+        console.log(dataSize, data)
         const clientTime = Date.now();
-        console.log(data);
-        console.log(clientTime - data.startedAt);
-        data.step.push(clientTime - data.timestamp[data.timestamp.length - 1]);
-        data.timestamp.push(clientTime);
-        data.dataSize.push(getByteLength(JSON.stringify(data)));
-        checkLatency(data.step, data.dataSize, data.fps);
-        // console.log(data);
+        const unPackedData = JSON.parse(new TextDecoder().decode(pako.ungzip(data)));
+        console.log(clientTime - unPackedData.startedAt);
+        unPackedData.step.push(clientTime - unPackedData.timestamp[unPackedData.timestamp.length - 1]);
+        unPackedData.timestamp.push(clientTime);
+        unPackedData.dataSize.push(dataSize);
+        checkLatency(unPackedData.step, unPackedData.dataSize, unPackedData.fps);
+        // console.log(unPackedData);
     
-        // const base64Data = bufferQueue.pop(data.sequence);
-        const results = data.result;
-        const fps = data.fps;
-        const latency = clientTime - data.startedAt;
+        // const base64Data = bufferQueue.pop(unPackedData.sequence);
+        const results = unPackedData.result;
+        const fps = unPackedData.fps;
+        const latency = clientTime - unPackedData.startedAt;
         const log = document.getElementById('latency-log');
 
         log.innerHTML = `${fps}fps, ${latency}ms`;

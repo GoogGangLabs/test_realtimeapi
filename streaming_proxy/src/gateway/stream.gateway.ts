@@ -48,8 +48,7 @@ class StreamGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
   @SubscribeMessage('client:preprocess:stream')
   receiveStream(@ConnectedSocket() client: ClientSocket, @MessageBody('sequence') sequence: number, @MessageBody('frame') frame: Buffer, @MessageBody('timestamp') timestamp: number, @MessageBody('inputSize') inputSize: number) {
-    const inferenceResponse = this.grpcService.inputStream(StreamRequestDto.fromData(client.sessionId, sequence, frame, timestamp, inputSize));
-    client.emit('server:postprocess:stream', inferenceResponse);
+    this.grpcService.inputStream(client, StreamRequestDto.fromData(client.sessionId, sequence, frame, timestamp, inputSize));
   }
 }
 
