@@ -122,3 +122,20 @@ a.current {
         max-width: 160px;
     }
 }
+
+#loading-progress {
+    position: absolute;
+    width: 100px;
+    height: 100px;
+    left: 50%;
+    top: 40%;
+}
+
+#loading-text {
+    position: absolute;
+    color: #000000;
+    text-align: center;
+    font-weight: bold;
+    left: 5%;
+    top: 32%;
+}

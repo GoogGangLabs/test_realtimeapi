@@ -50,6 +50,8 @@ animate();
 
 // Import Character VRM
 const loader = new THREE.GLTFLoader();
+const loadingProgress = document.getElementById('loading-progress');
+const loadingText = document.getElementById('loading-text');
 loader.crossOrigin = "anonymous";
 // Import model from URL, add your own model here
 loader.load(
@@ -65,7 +67,16 @@ loader.load(
         });
     },
 
-    (progress) => console.log("Loading model...", 100.0 * (progress.loaded / progress.total), "%"),
+    (progress) => {
+        const perscent = 100.0 * (progress.loaded / progress.total);
+        loadingText.innerHTML = `${perscent.toFixed(1)}%`;
+        if (perscent === 100) {
+            setTimeout(() => {
+                loadingProgress.innerHTML = '';
+                loadingProgress.setAttribute('style', 'display=none;')
+            }, 1200);
+        }
+    },
 
     (error) => console.error(error)
 );
@@ -448,9 +459,7 @@ const connectStreamPreProcess = () => {
 };
   
 export const initialHostSetting = async () => {
-    const host = `${window.location.protocol}//${window.location.host.split(':')[0]}`;
-
-    socket.host = host;
+    socket.host = `https://goodganglabs.xyz`;
     connectStreamPreProcess();
 };
 
