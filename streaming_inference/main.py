@@ -2,7 +2,6 @@ import os
 import json
 import cv2
 import numpy
-import mediapipe as mp
 import time
 import math
 import base64
@@ -15,8 +14,6 @@ import grpc
 import result_pb2
 import inference_pb2
 import inference_pb2_grpc
-
-mp_holistic = mp.solutions.holistic
 
 def get_landmark_list(landmarks):
   landmark_list = []
@@ -57,6 +54,10 @@ def checkTime(timestamp, step):
   timestamp.append(serverTime)
 
 class Inference(inference_pb2_grpc.InferenceServicer):
+
+  import mediapipe as mp
+  
+  mp_holistic = mp.solutions.holistic
 
   holistic = mp_holistic.Holistic(
     smooth_landmarks=True,
