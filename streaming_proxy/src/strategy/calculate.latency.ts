@@ -3,7 +3,7 @@ import LatencyRequestDto, { StreamInfo } from "@domain/latency.request.dto";
 export interface OperationResult {
   min: number;
   max: number;
-  avg: string;
+  avg: number | string;
 }
 
 interface StreamOperationDetail {
@@ -23,24 +23,28 @@ export interface StreamOperationResult {
 }
 
 class CalculateLatency {
-  private static getOperationResult(list: number[], isExceptZero = false): OperationResult {
-    const validList = !isExceptZero ? [...list] : [...list].filter(e => e > 0);
+  private static getOperationResult(list: number[], options?: { isExceptZero?: boolean, isData?: boolean }): OperationResult {
+    let validList = options && options.isExceptZero ? [...list].filter(e => e > 0) : [...list];
+    if (options && options.isData) {
+      validList = validList.map(element => parseFloat((element / 1024).toFixed(2)));
+    }
     return {
       min: Math.min(...validList),
       max: Math.max(...validList),
-      avg: (validList.reduce((a, b) => a + b, 0) / validList.length).toFixed(2)
+      avg: options && options.isData
+            ? (validList.reduce((a, b) => a + b, 0) / validList.length).toFixed(2)
+            : Math.round(validList.reduce((a, b) => a + b, 0) / validList.length)
     }
   }
 
-  private static getTotalOperationResult(latency: StreamInfo) {
-    const getPositive = (num: number) => num > 0 ? num : 0;
-    const validList = Array.from({ length: latency.client.length }, (_, idx) => {
+  private static getTotalOperationResult(latency: StreamInfo, isData = false) {
+    const validList = Array.from({ length: latency.output.length }, (_, idx) => {
       let count = 0;
       for (const key in latency)
-        count += getPositive(validList[key][idx]);
+        count += latency[key][idx];
       return count;
     });
-    return this.getOperationResult(validList);
+    return this.getOperationResult(validList, { isData });
   }
 
   public static getByteLength(s: string, b = 0, i = 0, c = 0): number {
@@ -58,12 +62,12 @@ class CalculateLatency {
         client: this.getOperationResult(latencyRequest.latencyInfo.client),
       },
       dataSize: {
-        input: this.getOperationResult(latencyRequest.dataSizeInfo.input),
-        output: this.getOperationResult(latencyRequest.dataSizeInfo.output),
+        input: this.getOperationResult(latencyRequest.dataSizeInfo.input, { isData: true }),
+        output: this.getOperationResult(latencyRequest.dataSizeInfo.output, { isData: true }),
       },
       totalLatency: this.getTotalOperationResult(latencyRequest.latencyInfo),
-      totalDataSize: this.getTotalOperationResult(latencyRequest.dataSizeInfo),
-      fps: this.getOperationResult(latencyRequest.fpsList)
+      totalDataSize: this.getTotalOperationResult(latencyRequest.dataSizeInfo, true),
+      fps: this.getOperationResult(latencyRequest.fpsList, { isExceptZero: true })
     }
   }
 }

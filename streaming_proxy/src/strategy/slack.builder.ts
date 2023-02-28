@@ -15,12 +15,6 @@ interface Block {
   text: BlockDetail;
 }
 
-interface DefaultAttachment {
-  color: string;
-  pretext: string;
-  fields: Array<Field>;
-}
-
 interface ImageAttachment {
   fallback: string;
   image_url: string;
@@ -34,7 +28,7 @@ class SlackBuilder {
   pretext: string;
   fields: Array<Field>;
   blocks: Array<Block>;
-  imageAttachments: Array<ImageAttachment>;
+  imageAttachment: ImageAttachment;
 
   constructor({ pretext }: Partial<{ color: string; pretext: string }>) {
     this.color = "#36a64f";
@@ -53,17 +47,6 @@ class SlackBuilder {
     return this;
   }
 
-  addImage(imageUrl: string, title: string, text: string) {
-    this.imageAttachments.push({
-      fallback: "Image attachment",
-      color: this.color,
-      image_url: imageUrl,
-      title,
-      text,
-    })
-    return this;
-  }
-
   toJSON() {
     return {
       as_user: false,
@@ -73,7 +56,13 @@ class SlackBuilder {
           pretext: this.pretext,
           fields: this.fields,
         },
-        ...this.imageAttachments
+        {
+          fallback: "Image attachment",
+          color: this.color,
+          image_url: "https://user-images.githubusercontent.com/74334399/221478315-a4fcfc24-59b4-43bc-891a-e4bfb40dd425.png",
+          title: "Latency 구간 별 정보",
+          text: "process"
+        }
       ],
       blocks: this.blocks,
     };
