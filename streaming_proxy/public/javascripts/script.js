@@ -490,16 +490,16 @@ export const initialHostSetting = async () => {
         select.appendChild(option);
     })
 
-    selectedCamera = select.options[0].value;
-
     if (!select.childNodes.length) {
         const option = document.createElement('option');
+        option.value = 'default'
         option.innerHTML = '기본 카메라 선택됨';
         select.appendChild(option);
         select.setAttribute('disabled', 'true');
-        selectedCamera = 'default';
     }
 
+    selectedCamera = select.options[0].value;
+    
     socket.host = `https://goodganglabs.xyz`;
     connectStreamPreProcess();
 };
