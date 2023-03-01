@@ -367,7 +367,7 @@ const loadVideo = async () => {
 
     const constraints = {
         video: {
-            deviceId: selectedCamera === 'default' ? selectedCamera : { exact: selectedCamera },
+            deviceId: { exact: selectedCamera },
             width: { exact: 640 },
             height: { exact: 480 },
             frameRate: { ideal: fixedFPS, max: fixedFPS }
@@ -390,7 +390,6 @@ const loadVideo = async () => {
             } else {
                 alert('알 수 없는 오류입니다.\n미디어 장치 오류일 가능성이 있습니다.');
             }
-            window.location.href = '/';
         })
   };
 
@@ -479,27 +478,39 @@ const connectStreamPreProcess = () => {
 };
   
 export const initialHostSetting = async () => {
-    const cameras = (await navigator.mediaDevices.enumerateDevices()).filter(device => device.kind === 'videoinput');
-    const select = document.getElementById('camera-select');
     
-    cameras.forEach((camera) => {
-        if (!camera.deviceId) return;
-        const option = document.createElement('option');
-        option.value = camera.deviceId;
-        option.innerHTML = camera.label;
-        select.appendChild(option);
-    })
+    navigator.mediaDevices.getUserMedia({ video: true })
+    .then(async (stream) => {
+        const cameras = (await navigator.mediaDevices.enumerateDevices()).filter(device => device.kind === 'videoinput');
+        const select = document.getElementById('camera-select');
 
-    if (!select.childNodes.length) {
+        cameras.forEach((camera) => {
+            if (!camera.deviceId) return;
+            const option = document.createElement('option');
+            option.value = camera.deviceId;
+            option.innerHTML = camera.label;
+            select.appendChild(option);
+        })
+
+        selectedCamera = select.options[0].value;
+
+        stream.getTracks()[0].stop();
+        stream = null;
+    })
+    .catch(async (error) => {
+        const select = document.getElementById('camera-select');
         const option = document.createElement('option');
-        option.value = 'default'
-        option.innerHTML = '기본 카메라 선택됨';
+        option.innerHTML = '사용 가능한 미디어 장치가 존재하지 않음';
         select.appendChild(option);
         select.setAttribute('disabled', 'true');
-    }
 
-    selectedCamera = select.options[0].value;
-    
+        if (error instanceof DOMException && error.message === 'Permission denied') {
+            alert('카메라 사용 권한을 허용해야 합니다.');
+        } else {
+            alert('알 수 없는 오류입니다.\n미디어 장치 오류일 가능성이 있습니다.');
+        }
+    })
+
     socket.host = `https://goodganglabs.xyz`;
     connectStreamPreProcess();
 };
