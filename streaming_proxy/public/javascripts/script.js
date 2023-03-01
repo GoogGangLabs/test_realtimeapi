@@ -309,6 +309,7 @@ const drawResults = async (results) => {
 };
 
 let flag = false;
+let selectedCamera = undefined;
 const bufferCanvas = document.getElementById('buffer-canvas');
 const bufferContext = bufferCanvas.getContext('2d');
 bufferCanvas.width = 640;
@@ -364,7 +365,16 @@ const loadVideo = async () => {
       videoInfo.latency[key] = [];
     }
 
-    navigator.mediaDevices.getUserMedia({ video: { width: 640, height: 480, frameRate: { ideal: 60, max: 60 } } })
+    const constraints = {
+        video: {
+            deviceId: { exact: selectedCamera },
+            width: { exact: 640 },
+            height: { exact: 480 },
+            frameRate: { ideal: fixedFPS, max: fixedFPS }
+        }
+    };
+
+    navigator.mediaDevices.getUserMedia(constraints)
         .then((stream) => {
             videoElement.srcObject = stream;
             videoElement.play();
@@ -375,7 +385,12 @@ const loadVideo = async () => {
             }, 1000 / fixedFPS);
         })
         .catch((error) => {
-            console.log(error);
+            if (error instanceof OverconstrainedError && error.constraint === 'deviceId') {
+                alert('카메라 정보가 올바르지 않습니다.\n정상적인 미디어 장치를 선택해주시길 바랍니다.');
+            } else {
+                alert('알 수 없는 오류입니다.\n미디어 장치 오류일 가능성이 있습니다.');
+            }
+            window.location.href = '/';
         })
   };
 
@@ -453,15 +468,33 @@ const streamPreProcessOn = () => {
     })
 };
 
+const changeCamera = (event) => {
+    const camera = event.target;
+    selectedCamera = camera.options[camera.selectedIndex].value;
+}
+
 const connectStreamPreProcess = () => {
     socket.io = io(socket.host, { path: '/preprocess', extraHeaders: { sessionId } });
     streamPreProcessOn();
 };
   
 export const initialHostSetting = async () => {
+    const cameras = (await navigator.mediaDevices.enumerateDevices()).filter(device => device.kind === 'videoinput');
+    const select = document.getElementById('camera-select');
+    
+    cameras.forEach((camera) => {
+        const option = document.createElement('option');
+        option.value = camera.deviceId;
+        option.innerHTML = camera.label;
+        select.appendChild(option);
+    })
+
+    selectedCamera = select.options[0].value;
+
     socket.host = `https://goodganglabs.xyz`;
     connectStreamPreProcess();
 };
 
 document.getElementById('button-start').addEventListener('click', loadVideo);
 document.getElementById('button-stop').addEventListener('click', stopVideo);
+document.getElementById('camera-select').addEventListener('change', changeCamera);

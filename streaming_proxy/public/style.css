@@ -64,10 +64,18 @@ canvas {
     width: 100%;
     z-index: 1;
 }
-nav {
+
+#camera-select {
     position: absolute;
     top: 12px;
     right: 16px;
+    height: 30px;
+}
+
+nav {
+    position: absolute;
+    top: 40px;
+    right: 20px;
     display: flex;
 }
 nav img {
