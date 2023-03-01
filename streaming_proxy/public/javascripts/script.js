@@ -367,7 +367,7 @@ const loadVideo = async () => {
 
     const constraints = {
         video: {
-            deviceId: { exact: selectedCamera },
+            deviceId: selectedCamera === 'default' ? selectedCamera : { exact: selectedCamera },
             width: { exact: 640 },
             height: { exact: 480 },
             frameRate: { ideal: fixedFPS, max: fixedFPS }
@@ -386,7 +386,7 @@ const loadVideo = async () => {
         })
         .catch((error) => {
             if (error instanceof OverconstrainedError && error.constraint === 'deviceId') {
-                alert('카메라 정보가 올바르지 않습니다.\n정상적인 미디어 장치를 선택해주시길 바랍니다.');
+                alert('카메라 정보가 올바르지 않습니다.\n카메라가 존재하지 않거나, 장치를 찾을 수 없습니다.');
             } else {
                 alert('알 수 없는 오류입니다.\n미디어 장치 오류일 가능성이 있습니다.');
             }
@@ -483,6 +483,7 @@ export const initialHostSetting = async () => {
     const select = document.getElementById('camera-select');
     
     cameras.forEach((camera) => {
+        if (!camera.deviceId) return;
         const option = document.createElement('option');
         option.value = camera.deviceId;
         option.innerHTML = camera.label;
@@ -490,6 +491,14 @@ export const initialHostSetting = async () => {
     })
 
     selectedCamera = select.options[0].value;
+
+    if (!select.childNodes.length) {
+        const option = document.createElement('option');
+        option.innerHTML = '기본 카메라 선택됨';
+        select.appendChild(option);
+        select.setAttribute('disabled', 'true');
+        selectedCamera = 'default';
+    }
 
     socket.host = `https://goodganglabs.xyz`;
     connectStreamPreProcess();
